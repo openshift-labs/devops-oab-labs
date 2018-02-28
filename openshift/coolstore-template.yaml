@@ -7,6 +7,15 @@ metadata:
     tags: microservice,jboss,spring
   name: coolstore
 objects:
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    name: default_view
+  roleRef:
+    name: view
+  subjects:
+  - kind: ServiceAccount
+    name: default
 # UI
 - apiVersion: v1
   kind: ImageStream
@@ -188,7 +197,7 @@ objects:
           value: ${MAVEN_MIRROR_URL}
         from:
           kind: ImageStreamTag
-          name: redhat-openjdk18-openshift:1.1
+          name: redhat-openjdk18-openshift:1.2
           namespace: openshift
       type: Source
     triggers:
@@ -329,7 +338,7 @@ objects:
       protocol: TCP
       targetPort: 5432
     selector:
-      name: catalog-postgresql
+      deploymentconfig: catalog-postgresql
     sessionAffinity: None
     type: ClusterIP
   status:
@@ -412,7 +421,7 @@ objects:
         - postgresql
         from:
           kind: ImageStreamTag
-          name: postgresql:9.6
+          name: postgresql:9.5
           namespace: openshift
       type: ImageChange
     - type: ConfigChange
