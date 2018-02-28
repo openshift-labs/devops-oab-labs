@@ -13,7 +13,7 @@ objects:
   metadata:
     name: web-ui
     labels:
-      application: coolstore
+      app: coolstore
       component: web-ui
   spec:
     tags:
@@ -23,7 +23,8 @@ objects:
   metadata:
     name: web-ui
     labels:
-      app: web-ui
+      app: coolstore
+      component: web-ui
   spec:
     output:
       to:
@@ -51,7 +52,7 @@ objects:
   metadata:
     name: web-ui
     labels:
-      application: coolstore
+      app: coolstore
       component: web-ui
   spec:
     replicas: 1
@@ -63,7 +64,7 @@ objects:
     template:
       metadata:
         labels:
-          application: coolstore
+          app: coolstore
           component: web-ui
           deploymentconfig: web-ui
       spec:
@@ -129,8 +130,7 @@ objects:
   kind: Service
   metadata:
     labels:
-      app: web-ui
-      application: coolstore
+      app: coolstore
       component: web-ui
     name: web-ui
   spec:
@@ -146,7 +146,7 @@ objects:
   metadata:
     name: web-ui
     labels:
-      application: coolstore
+      app: coolstore
       component: web-ui
   spec:
     to:
@@ -158,7 +158,7 @@ objects:
   metadata:
     name: catalog
     labels:
-      application: coolstore
+      app: coolstore
       component: catalog
   spec:
     tags:
@@ -168,7 +168,7 @@ objects:
   metadata:
     name: catalog
     labels:
-      application: coolstore
+      app: coolstore
       component: catalog
   spec:
     output:
@@ -200,7 +200,7 @@ objects:
   metadata:
     name: catalog
     labels:
-      application: coolstore
+      app: coolstore
       component: catalog
   spec:
     replicas: 1
@@ -212,7 +212,7 @@ objects:
     template:
       metadata:
         labels:
-          application: coolstore
+          app: coolstore
           component: catalog
           deploymentconfig: catalog
         name: catalog
@@ -274,8 +274,7 @@ objects:
   kind: Service
   metadata:
     labels:
-      app: catalog
-      application: coolstore
+      app: coolstore
       component: catalog
     name: catalog
   spec:
@@ -289,7 +288,7 @@ objects:
   kind: Route
   metadata:
     labels:
-      application: coolstore
+      app: coolstore
       component: catalog
     name: catalog
   spec:
@@ -320,8 +319,7 @@ objects:
       template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
     name: catalog-postgresql
     labels:
-      app: catalog
-      application: coolstore
+      app: coolstore
       component: catalog-postgresql
   spec:
     ports:
@@ -343,19 +341,20 @@ objects:
       template.alpha.openshift.io/wait-for-ready: "true"
     name: catalog-postgresql
     labels:
-      app: catalog
-      application: coolstore
+      app: coolstore
       component: catalog-postgresql
   spec:
     replicas: 1
     selector:
-      name: catalog-postgresql
+      deploymentconfig: catalog-postgresql
     strategy:
       type: Recreate
     template:
       metadata:
         labels:
-          name: catalog-postgresql
+          app: coolstore
+          component: catalog-postgresql
+          deploymentconfig: catalog-postgresql
       spec:
         containers:
         - capabilities: {}
