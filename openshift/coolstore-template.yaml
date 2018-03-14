@@ -7,55 +7,7 @@ metadata:
     tags: microservice,jboss,spring
   name: coolstore
 objects:
-- apiVersion: v1
-  kind: RoleBinding
-  metadata:
-    name: default_view
-  roleRef:
-    name: view
-  subjects:
-  - kind: ServiceAccount
-    name: default
 # UI
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: web-ui
-    labels:
-      app: coolstore
-      component: web-ui
-  spec:
-    tags:
-    - name: latest
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    name: web-ui
-    labels:
-      app: coolstore
-      component: web-ui
-  spec:
-    output:
-      to:
-        kind: ImageStreamTag
-        name: web-ui:latest
-    source:
-      contextDir: web-nodejs
-      git:
-        ref: ${GIT_REF}
-        uri: ${GIT_URI}
-      type: Git
-    strategy:
-      sourceStrategy:
-        from:
-          kind: ImageStreamTag
-          name: nodejs:4
-          namespace: openshift
-      type: Source
-    triggers:
-    - imageChange: {}
-      type: ImageChange
-    - type: ConfigChange
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -132,7 +84,8 @@ objects:
         - web-ui
         from:
           kind: ImageStreamTag
-          name: web-ui:latest
+          name: web-ui:${IMAGE_VERSION}
+          namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
@@ -162,48 +115,6 @@ objects:
       kind: Service
       name: web-ui
 # Catalog Service
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: catalog
-    labels:
-      app: coolstore
-      component: catalog
-  spec:
-    tags:
-    - name: latest
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    name: catalog
-    labels:
-      app: coolstore
-      component: catalog
-  spec:
-    output:
-      to:
-        kind: ImageStreamTag
-        name: catalog:latest
-    source:
-      contextDir: catalog-spring-boot
-      git:
-        ref: ${GIT_REF}
-        uri: ${GIT_URI}
-      type: Git
-    strategy:
-      sourceStrategy:
-        env:
-        - name: MAVEN_MIRROR_URL
-          value: ${MAVEN_MIRROR_URL}
-        from:
-          kind: ImageStreamTag
-          name: redhat-openjdk18-openshift:1.2
-          namespace: openshift
-      type: Source
-    triggers:
-    - type: ConfigChange
-    - imageChange: {}
-      type: ImageChange
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -276,7 +187,8 @@ objects:
         - catalog
         from:
           kind: ImageStreamTag
-          name: catalog:latest
+          name: catalog:${IMAGE_VERSION}
+          namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
@@ -426,18 +338,16 @@ objects:
       type: ImageChange
     - type: ConfigChange
 parameters:
-- description: Git source URI for application
-  displayName: Git source repository
-  name: GIT_URI
+- displayName: Image Version
+  description: Catalog and Web image versions to deploy
+  name: IMAGE_VERSION
   required: true
-  value: https://github.com/openshift-labs/devops-oab-labs.git
-- displayName: Git branch/tag reference
-  name: GIT_REF
+  value: latest
+- displayName: Image Namespace
+  description: The namespaces that contains the catalog and web images
+  name: IMAGE_NAMESPACE
   required: true
-  value: master
-- description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)
-  displayName: Maven mirror url
-  name: MAVEN_MIRROR_URL
+  value: registry
 - description: Catalog Service database user name
   displayName: Catalog Database Username
   from: user[a-zA-Z0-9]{3}
