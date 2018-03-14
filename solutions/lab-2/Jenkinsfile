@@ -28,9 +28,14 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            def dc = openshift.selector("dc", "catalog")
+            def result, dc = openshift.selector("dc", "catalog")
             dc.rollout().latest()
-            dc.rollout().status()
+            timeout(10) {
+                result = dc.rollout().status("-w")
+            }
+            if (result.status != 0) {
+                error(result.err)
+            }
           }
         }
       }

@@ -31,7 +31,34 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.tag("catalog:latest", "catalog:${releaseTag}-${commitId}")
+            echo "Releasing version ${releaseTag}-${commitId}"
+            openshift.tag("catalog:latest", "${env.REGISTRY_PROJECT}/catalog:${releaseTag}-${commitId}")
+            openshift.tag("web:latest", "${env.REGISTRY_PROJECT}/web:${releaseTag}-${commitId}")
+          }
+        }
+      }
+    }    
+    stage('Clean-up STAGE') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject(env.STAGE_PROJECT) {
+              openshift.raw('all,cm,pvc --all')
+            }
+          }
+        }
+      }
+    }    
+    stage('Deploy STAGE') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject(env.STAGE_PROJECT) {
+              def template = 'https://raw.githubusercontent.com/siamaksade/devops-oab-labs/master/openshift/coolstore-template.yaml'
+              openshift.apply(
+                openshift.process("-f", template, "-p", "IMAGE_VERSION=${releaseTag}", "-p", "IMAGE_NAMESPACE=${env.REGISTRY_PROJECT}")
+              )
+            }
           }
         }
       }
