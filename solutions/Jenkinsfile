@@ -1,0 +1,39 @@
+pipeline {
+  agent {
+      label 'maven'
+  }
+  stages {
+    stage('Build JAR') {
+      steps {
+        sh "cp .settings.xml ~/.m2/settings.xml"
+        sh "mvn package"
+      }
+    }
+    stage('Archive JAR') {
+      steps {
+        sh "mvn deploy -DskipTests"
+      }
+    }
+    stage('Build Image') {
+      steps {
+        script {
+          def pom = readMavenPom file: 'pom.xml'
+          openshift.withCluster() {
+            openshift.startBuild("catalog", "--from-file=target/catalog-${pom.version}.jar", "--wait")
+          }
+        }
+      }
+    }
+    stage('Deploy') {
+      steps {
+        script {
+          openshift.withCluster() {
+            def dc = openshift.selector("dc", "catalog")
+            dc.rollout().latest()
+            dc.rollout().status()
+          }
+        }
+      }
+    }
+  }
+}

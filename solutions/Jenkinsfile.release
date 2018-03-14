@@ -1,0 +1,40 @@
+def releaseTag,commitId
+
+pipeline {
+  agent {
+      label 'maven'
+  }
+  stages {
+    stage('Prepare') {
+      steps {
+        sh "git checkout master"
+        sh "git config --local user.email 'jenkins@cicd.com'"
+        sh "git config --local user.name 'jenkins'"
+        
+        script {
+           commitId = sh(returnStdout: true, script: "git rev-parse --short HEAD").trim()
+           releaseTag = readMavenPom().getVersion().replace("-SNAPSHOT", "")
+        }
+      }
+    }
+    stage('Release Code') {
+      environment {
+        SCM_GIT_URL = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
+      }
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dev-gogs-credentials', usernameVariable: 'GOGS_USERNAME', passwordVariable: 'GOGS_PASSWORD')]) {
+	      sh "mvn --batch-mode release:clean release:prepare release:perform -s .settings.xml"
+        }
+      }
+    }
+    stage('Release Image') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.tag("catalog:latest", "catalog:${releaseTag}-${commitId}")
+          }
+        }
+      }
+    }    
+  }
+}
