@@ -165,7 +165,7 @@ objects:
       spring.datasource.driver-class-name=com.mysql.jdbc.Driver
       spring.jpa.hibernate.ddl-auto=create
       spring.datasource.username=${DB_USERNAME}
-      spring.datasource.password=${DB_PASSWORD}      
+      spring.datasource.password=${DB_PASSWORD}
 # Catalog Database
 - apiVersion: v1
   kind: Service
