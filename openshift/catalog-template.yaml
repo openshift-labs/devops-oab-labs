@@ -59,6 +59,8 @@ objects:
   spec:
     replicas: 1
     selector:
+      app: coolstore
+      component: catalog
       deploymentconfig: catalog
     strategy:
       resources: {}
@@ -196,7 +198,7 @@ objects:
     selector:
       deploymentconfig: catalog-mysql
       component: catalog-mysql
-      app: catalog
+      app: coolstore
     strategy:
       type: Recreate
     template:
