@@ -7,6 +7,16 @@ metadata:
     tags: microservice,jboss,spring
   name: coolstore
 objects:
+- apiVersion: v1
+  groupNames: null
+  kind: RoleBinding
+  metadata:
+    name: default_admin
+  roleRef:
+    name: admin
+  subjects:
+  - kind: ServiceAccount
+    name: default
 # UI
 - apiVersion: v1
   kind: DeploymentConfig
