@@ -271,17 +271,16 @@ objects:
       type: ImageChange
     - type: ConfigChange
 parameters:
-- description: Git source URI for application
+- description: Git source URI for application e.g. https://github.com/openshift-labs/devops-oab-labs.git
   displayName: Git source repository
   name: GIT_URI
   required: true
-  value: https://github.com/openshift-labs/devops-oab-labs.git
 - displayName: Git branch/tag reference
   name: GIT_REF
   required: true
   value: master
 - displayName: Git Context Dir
-  description: The subdirectory in the Git repository that contains the code
+  description: The subdirectory in the Git repository that contains the code e.g. catalog-spring-boot
   name: GIT_CONTEXT_DIR
   required: false
 - description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)

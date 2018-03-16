@@ -153,34 +153,18 @@ objects:
       kind: Service
       name: web-ui
 parameters:
-- description: Git source URI for application
+- description: Git source URI for application e.g. https://github.com/openshift-labs/devops-oab-labs.git
   displayName: Git source repository
   name: GIT_URI
   required: true
-  value: https://github.com/openshift-labs/devops-oab-labs.git
 - displayName: Git branch/tag reference
   name: GIT_REF
   required: true
   value: master
 - displayName: Git Context Dir
-  description: The subdirectory in the Git repository that contains the code
+  description: The subdirectory in the Git repository that contains the code e.g. web-nodejs
   name: GIT_CONTEXT_DIR
   required: false
-- description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)
-  displayName: Maven mirror url
-  name: MAVEN_MIRROR_URL
-- description: Catalog Service database user name
-  displayName: Catalog Database Username
-  from: user[a-zA-Z0-9]{3}
-  generate: expression
-  name: DB_USERNAME
-  required: true
-- description: Catalog Service database user password
-  displayName: Catalog Database Password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: DB_PASSWORD
-  required: true
 - description: Catalog service name exposing a REST API for the product list
   displayName: Catalog Service Name
   name: CATALOG_SERVICE
