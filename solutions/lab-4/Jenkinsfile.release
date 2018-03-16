@@ -33,7 +33,7 @@ pipeline {
           openshift.withCluster() {
             echo "Releasing version ${releaseTag}-${commitId}"
             openshift.tag("catalog:latest", "${env.REGISTRY_PROJECT}/catalog:${releaseTag}-${commitId}")
-            openshift.tag("web:latest", "${env.REGISTRY_PROJECT}/web:${releaseTag}-${commitId}")
+            openshift.tag("web-ui:latest", "${env.REGISTRY_PROJECT}/web-ui:${releaseTag}-${commitId}")
           }
         }
       }
