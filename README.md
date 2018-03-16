@@ -7,7 +7,7 @@ CoolStore is an online store web application built using Spring Boot, Node.js an
    |            |   |            |   |            |
    |     Web    |   |   Catalog  |   |  Database  |
    |            +-->+            +-->+            |
-   |   Node.js  |   |   Spring   |   | PostgreSQL |
+   |   Node.js  |   |   Spring   |   |    MySQL   |
    |  AngularJS |   |    Boot    |   |            |
    +------------+   +------------+   +------------+
 ```

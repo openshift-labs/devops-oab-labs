@@ -232,118 +232,104 @@ objects:
   metadata:
     name: catalog
     labels:
-      app: catalog
-      application: coolstore
+      app: coolstore
       component: catalog
   data:
     application.properties: |-
-      spring.datasource.url=jdbc:postgresql://catalog-postgresql:5432/catalog
-      spring.datasource.driver-class-name=org.postgresql.Driver
+      spring.datasource.url=jdbc:mysql://catalog-mysql:3306/catalog
+      spring.datasource.driver-class-name=com.mysql.jdbc.Driver
       spring.jpa.hibernate.ddl-auto=create
       spring.datasource.username=${DB_USERNAME}
-      spring.datasource.password=${DB_PASSWORD}
-# Catalog PostgreSQL
+      spring.datasource.password=${DB_PASSWORD}      
+# Catalog Database
 - apiVersion: v1
   kind: Service
   metadata:
     annotations:
-      template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
-    name: catalog-postgresql
+      template.openshift.io/expose-uri: mysql://{.spec.clusterIP}:{.spec.ports[?(.name=="mysql")].port}
+    name: catalog-mysql
     labels:
+      component: catalog-mysql
       app: coolstore
-      component: catalog-postgresql
   spec:
     ports:
-    - name: postgresql
-      nodePort: 0
-      port: 5432
-      protocol: TCP
-      targetPort: 5432
+    - name: mysql
+      port: 3306
     selector:
-      deploymentconfig: catalog-postgresql
-    sessionAffinity: None
-    type: ClusterIP
-  status:
-    loadBalancer: {}
+      deploymentconfig: catalog-mysql
+      component: catalog-mysql
+      app: coolstore
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     annotations:
       template.alpha.openshift.io/wait-for-ready: "true"
-    name: catalog-postgresql
+    name: catalog-mysql
     labels:
+      component: catalog-mysql
       app: coolstore
-      component: catalog-postgresql
   spec:
     replicas: 1
     selector:
-      deploymentconfig: catalog-postgresql
+      deploymentconfig: catalog-mysql
+      component: catalog-mysql
+      app: coolstore
     strategy:
       type: Recreate
     template:
       metadata:
         labels:
+          deploymentconfig: catalog-mysql
+          component: catalog-mysql
           app: coolstore
-          component: catalog-postgresql
-          deploymentconfig: catalog-postgresql
       spec:
         containers:
-        - capabilities: {}
-          env:
-          - name: POSTGRESQL_USER
+        - env:
+          - name: MYSQL_USER
             value: ${DB_USERNAME}
-          - name: POSTGRESQL_PASSWORD
+          - name: MYSQL_PASSWORD
             value: ${DB_PASSWORD}
-          - name: POSTGRESQL_DATABASE
+          - name: MYSQL_ROOT_PASSWORD
+            value: ${DB_PASSWORD}
+          - name: MYSQL_DATABASE
             value: catalog
           image: ' '
           imagePullPolicy: IfNotPresent
           livenessProbe:
-            exec:
-              command:
-              - /bin/sh
-              - -i
-              - -c
-              - pg_isready -h 127.0.0.1 -p 5432
             initialDelaySeconds: 30
+            tcpSocket:
+              port: 3306
             timeoutSeconds: 1
-          name: postgresql
+          name: mysql
           ports:
-          - containerPort: 5432
-            protocol: TCP
+          - containerPort: 3306
           readinessProbe:
             exec:
               command:
               - /bin/sh
               - -i
               - -c
-              - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
-                'SELECT 1'
+              - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE
+                -e 'SELECT 1'
             initialDelaySeconds: 5
             timeoutSeconds: 1
           resources:
             limits:
               memory: 512Mi
-          securityContext:
-            capabilities: {}
-            privileged: false
-          terminationMessagePath: /dev/termination-log
           volumeMounts:
-          - mountPath: /var/lib/pgsql/data
-            name: catalog-postgresql-data
-        dnsPolicy: ClusterFirst
-        restartPolicy: Always
+          - mountPath: /var/lib/mysql/data
+            name: catalog-mysql-data
         volumes:
-        - name: catalog-postgresql-data
+        - name: catalog-mysql-data
           emptyDir: {}
     triggers:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - postgresql
+        - mysql
         from:
           kind: ImageStreamTag
-          name: postgresql:9.5
+          name: mysql:5.7
           namespace: openshift
       type: ImageChange
     - type: ConfigChange

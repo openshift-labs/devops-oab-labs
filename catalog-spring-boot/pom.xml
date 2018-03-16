@@ -16,7 +16,7 @@
     <spring.k8s.bom.version>0.2.0.RELEASE</spring.k8s.bom.version>
     <k8s.client.version>2.4.1</k8s.client.version>
     <fabric8.maven.plugin.version>3.5.30</fabric8.maven.plugin.version>
-    <postgresql.version>9.4.1212</postgresql.version>
+    <mysql.version>5.1.46</mysql.version>
     <project.scm.id>gogs</project.scm.id>
   </properties>
 
@@ -84,9 +84,9 @@
       <artifactId>h2</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${postgresql.version}</version>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.version}</version>
     </dependency>
   </dependencies>
   
