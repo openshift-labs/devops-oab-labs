@@ -1,0 +1,293 @@
+apiVersion: v1
+kind: Template
+metadata:
+  annotations:
+    description: CoolStore Microservices Application Template
+    iconClass: icon-java
+    tags: microservice,jboss,spring
+  name: coolstore
+objects:
+- apiVersion: v1
+  groupNames: null
+  kind: RoleBinding
+  metadata:
+    name: default_admin
+  roleRef:
+    name: admin
+  subjects:
+  - kind: ServiceAccount
+    name: default
+# UI
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: web-ui
+    labels:
+      app: coolstore
+      component: web-ui
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: web-ui
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: coolstore
+          component: web-ui
+          deploymentconfig: web-ui
+      spec:
+        containers:
+        - env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: COOLSTORE_GW_SERVICE
+            value: catalog
+          - name: HOSTNAME_HTTP
+            value: web-ui:8080
+          image: web-ui
+          imagePullPolicy: Always
+          name: web-ui
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - web-ui
+        from:
+          kind: ImageStreamTag
+          name: web-ui:${IMAGE_VERSION}
+          namespace: ${IMAGE_NAMESPACE}
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: coolstore
+      component: web-ui
+    name: web-ui
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: web-ui
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: web-ui
+    labels:
+      app: coolstore
+      component: web-ui
+  spec:
+    to:
+      kind: Service
+      name: web-ui
+# Catalog MySQL (APB)
+- apiVersion: servicecatalog.k8s.io/v1beta1
+  kind: ServiceInstance
+  metadata:
+    name: catalog-mysql-instance
+    labels:
+      app: coolstore
+      component: catalog-mysql
+  spec:
+    clusterServiceClassExternalName: rhcc-mysql-apb
+    clusterServicePlanExternalName: dev
+    parameters:
+      service_name: catalog-mysql
+      mysql_database: catalog
+      mysql_user: ${DB_USERNAME}
+      mysql_password: ${DB_PASSWORD}
+      mysql_version: 5.7
+- apiVersion: servicecatalog.k8s.io/v1beta1
+  kind: ServiceBinding
+  metadata:
+    name: catalog-mysql-binding
+  spec:
+    instanceRef:
+      name: catalog-mysql-instance
+    secretName: catalog-mysql-credentials
+# Catalog Service
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: catalog
+    labels:
+      app: coolstore
+      component: catalog
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: catalog
+    strategy:
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: coolstore
+          component: catalog
+          deploymentconfig: catalog
+        name: catalog
+      spec:
+        containers:
+        - image: catalog
+          imagePullPolicy: Always
+          name: catalog
+          envFrom:
+          - secretRef:
+              name: catalog-mysql-credentials
+            prefix: SVCAT_
+          ports:
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - catalog
+        from:
+          kind: ImageStreamTag
+          name: catalog:${IMAGE_VERSION}
+          namespace: ${IMAGE_NAMESPACE}
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: coolstore
+      component: catalog
+    name: catalog
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: catalog
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: coolstore
+      component: catalog
+    name: catalog
+  spec:
+    to:
+      kind: Service
+      name: catalog
+      weight: 100
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: catalog
+    labels:
+      app: catalog
+      application: coolstore
+      component: catalog
+  data:
+    application.properties: |-
+      spring.datasource.url=jdbc:mysql://catalog-mysql:${SVCAT_DB_PORT}/${SVCAT_DB_NAME}
+      spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+      spring.jpa.hibernate.ddl-auto=create
+      spring.datasource.username=${SVCAT_DB_USER}
+      spring.datasource.password=${SVCAT_DB_PASSWORD}
+parameters:
+- displayName: Image Version
+  description: Catalog and Web image versions to deploy
+  name: IMAGE_VERSION
+  required: true
+  value: latest
+- displayName: Image Namespace
+  description: The namespaces that contains the catalog and web images
+  name: IMAGE_NAMESPACE
+  required: true
+  value: registry
+- description: Catalog Service database user name
+  displayName: Catalog Database Username
+  from: user[a-zA-Z0-9]{3}
+  generate: expression
+  name: DB_USERNAME
+  required: true
+- description: Catalog Service database user password
+  displayName: Catalog Database Password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: DB_PASSWORD
+  required: true
