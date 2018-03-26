@@ -7,16 +7,16 @@ metadata:
     tags: microservice,jboss,spring
   name: catalog
 objects:
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: catalog
-    labels:
-      app: coolstore
-      component: catalog
-  spec:
-    tags:
-    - name: latest
+# - apiVersion: v1
+#   kind: ImageStream
+#   metadata:
+#     name: catalog
+#     labels:
+#       app: coolstore
+#       component: catalog
+#   spec:
+#     tags:
+#     - name: latest
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -29,6 +29,7 @@ objects:
       to:
         kind: ImageStreamTag
         name: catalog:latest
+        namespace: ${IMAGE_NAMESPACE}
     source:
       contextDir: ${GIT_CONTEXT_DIR}
       git:
@@ -124,6 +125,7 @@ objects:
         from:
           kind: ImageStreamTag
           name: catalog:latest
+          namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
@@ -286,5 +288,8 @@ parameters:
   generate: expression
   name: DB_PASSWORD
   required: true
-
+- displayName: Image Namespace
+  description: The namespace to push the built Catalog images to
+  name: IMAGE_NAMESPACE
+  required: true
   

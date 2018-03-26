@@ -8,16 +8,16 @@ metadata:
   name: coolstore
 objects:
 # UI
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: web-ui
-    labels:
-      app: coolstore
-      component: web-ui
-  spec:
-    tags:
-    - name: latest
+# - apiVersion: v1
+#   kind: ImageStream
+#   metadata:
+#     name: web-ui
+#     labels:
+#       app: coolstore
+#       component: web-ui
+#   spec:
+#     tags:
+#     - name: latest
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -30,6 +30,7 @@ objects:
       to:
         kind: ImageStreamTag
         name: web-ui:latest
+        namespace: ${IMAGE_NAMESPACE}
     source:
       contextDir: ${GIT_CONTEXT_DIR}
       git:
@@ -124,6 +125,7 @@ objects:
         from:
           kind: ImageStreamTag
           name: web-ui:latest
+          namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
@@ -170,3 +172,7 @@ parameters:
   name: CATALOG_SERVICE
   required: true
   value: catalog
+- displayName: Image Namespace
+  description: The namespace to push the built Web UI images to
+  name: IMAGE_NAMESPACE
+  required: true
