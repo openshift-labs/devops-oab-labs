@@ -278,7 +278,7 @@ parameters:
   description: The namespaces that contains the catalog and web images
   name: IMAGE_NAMESPACE
   required: true
-  value: registry
+  value: cicd
 - description: Catalog Service database user name
   displayName: Catalog Database Username
   from: user[a-zA-Z0-9]{3}
