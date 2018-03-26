@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  name: catalog
+  labels:
+    app: coolstore
+    component: catalog
+spec:
+  tags:
+  - name: latest
