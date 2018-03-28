@@ -19,7 +19,7 @@ objects:
     selector:
       app: coolstore
       component: catalog
-      deploymentconfig: catalog
+      deploymentconfig: ${APP_NAME}
     strategy:
       resources: {}
       type: Recreate
@@ -28,7 +28,7 @@ objects:
         labels:
           app: coolstore
           component: catalog
-          deploymentconfig: catalog
+          deploymentconfig: ${APP_NAME}
         name: ${APP_NAME}
       spec:
         containers:
@@ -102,7 +102,7 @@ objects:
       protocol: TCP
       targetPort: 8080
     selector:
-      deploymentconfig: catalog
+      deploymentconfig: ${APP_NAME}
 parameters:
 - displayName: Catalog Service Name
   name: APP_NAME
