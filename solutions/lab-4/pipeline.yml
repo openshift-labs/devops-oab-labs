@@ -1,0 +1,32 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: catalog-release
+  name: catalog-release
+spec:
+  runPolicy: Serial
+  source:
+    git:
+      ref: master
+      uri: ${GITHUB_REPO}
+    type: Git
+  strategy:
+    jenkinsPipelineStrategy:
+      env:
+        - name: NEXUS_URL
+          value: 'http://nexus.lab-infra.svc:8081'
+        - name: STAGE_PROJECT
+          value: stage
+        - name: CICD_PROJECT
+          value: cicd
+      jenkinsfilePath: Jenkinsfile.prod
+    type: JenkinsPipeline
+  triggers:
+    - github:
+        secret: ZNfmW7-yHwj3cohAi7UY
+      type: GitHub
+    - generic:
+        secret: E2iXYrrM0U4pzymw-qmq
+      type: Generic
+    - type: ConfigChange
