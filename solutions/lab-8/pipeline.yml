@@ -1,7 +1,7 @@
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  name: catalog-build
+  name: catalog-canary-prod
 spec:
   runPolicy: Serial
   source:
@@ -12,17 +12,17 @@ spec:
   strategy:
     jenkinsPipelineStrategy:
       env:
-        - name: NEXUS_URL
-          value: 'http://nexus.lab-infra.svc:8081'
-        - name: DEV_PROJECT
-          value: dev
-      jenkinsfilePath: Jenkinsfile
+        - name: PROD_REGISTRY
+          value: ${PROD_REGISTRY}
+        - name: PROD_CLUSTER
+          value: ${PROD_CLUSTER}
+      jenkinsfilePath: Jenkinsfile.catalog-prod
     type: JenkinsPipeline
   triggers:
     - github:
-        secret: Jb7pt5e7_daTQeG5jqFz
+        secret: CqPGlXcKJXXqKxW4Ye6z
       type: GitHub
     - generic:
-        secret: Ti306cTN-tzzXky_F3VB
+        secret: 4LXwMdx9vhQY4WXbLcFR
       type: Generic
     - type: ConfigChange

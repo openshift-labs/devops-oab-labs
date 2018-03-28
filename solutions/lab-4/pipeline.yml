@@ -1,8 +1,6 @@
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  labels:
-    app: catalog-release
   name: catalog-release
 spec:
   runPolicy: Serial

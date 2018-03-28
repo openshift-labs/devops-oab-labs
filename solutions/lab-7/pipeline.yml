@@ -1,8 +1,6 @@
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  labels:
-    app: coolstore-create-prod
   name: coolstore-create-prod
 spec:
   runPolicy: Serial
@@ -18,7 +16,7 @@ spec:
           value: ${PROD_REGISTRY}
         - name: PROD_CLUSTER
           value: ${PROD_CLUSTER}
-      jenkinsfilePath: Jenkinsfile.prod
+      jenkinsfilePath: Jenkinsfile.create-prod
     type: JenkinsPipeline
   triggers:
     - github:
