@@ -1,0 +1,75 @@
+---
+- name: Solve Lab 3
+  hosts: localhost
+  gather_facts: false
+  run_once: true
+  vars_files:
+  - ../vars.yml
+      
+  tasks:
+    - name: set catalog triggers to manual
+      shell: "oc set triggers dc/catalog --manual -n {{ dev_project }}"
+      ignore_errors: true
+
+    - name: deploy jenkins in {{ cicd_project }}
+      shell: "oc new-app jenkins-persistent -n {{ cicd_project }}"
+      ignore_errors: true
+
+    - name: create temporary git directory
+      tempfile:
+        state: directory
+        prefix: catalog-git
+      register: git_dir
+
+    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+      args:
+        chdir: "{{ git_dir.path }}"
+
+    - name: create jenkinsfile
+      copy:
+        src: Jenkinsfile
+        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile"
+
+    - name: push jenkinsfile to catalog-spring-boot git repository
+      shell: |
+        git add Jenkinsfile
+        git commit -m "build pipeline added"
+        git push origin master
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+
+    - name: create build pipeline
+      shell: |
+        oc new-build . --name=catalog-build --strategy=pipeline -n {{ cicd_project}}
+        oc cancel-build bc/catalog-build -n {{ cicd_project}}
+        oc set env bc/catalog-build -e NEXUS_URL=http://nexus.{{ infra_project }}.svc:8081 -e DEV_PROJECT={{ dev_project}} -n {{ cicd_project}}
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+
+    - name: extract webhook secret
+      shell: |
+        oc get bc catalog-build -o=jsonpath='{.spec.triggers[?(@.type=="Generic")].generic.secret}' -n {{ cicd_project}}
+      register: webhook_secret_result
+
+    - name: create webhook
+      uri:
+        url: http://{{ gogs_hostname }}/api/v1/repos/{{ gogs_user }}/catalog-spring-boot/hooks
+        method: POST
+        body: >
+          {
+            "type": "gogs",
+            "config": {
+              "url": "{{ openshift_master }}/oapi/v1/namespaces/{{ cicd_project }}/buildconfigs/catalog-build/webhooks/{{ webhook_secret_result.stdout }}/generic",
+              "content_type": "json"
+            },
+            "events": [
+              "push"
+            ],
+            "active": true
+          }
+        body_format: json
+        user: "{{ gogs_user }}"
+        password: "{{ gogs_password }}"
+        status_code: 200,201
+        force_basic_auth: true

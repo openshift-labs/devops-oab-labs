@@ -1,5 +1,8 @@
 # Lab Solution Variables
 
+# OpenShift Master
+openshift_master: 
+
 # Projects
 project_suffix: 
 dev_project: dev{{project_suffix}}
