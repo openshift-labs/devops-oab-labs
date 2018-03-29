@@ -41,8 +41,9 @@
 
     - name: process build pipeline template
       template:
-        src: pipelne.yml.j2
+        src: pipeline.yml.j2
         dest: "{{ git_dir.path }}/pipelne.yml"
 
     - name: create build pipeline
       shell: "oc create -f {{ git_dir.path }}/pipelne.yml -n {{ cicd_project}}"
+      ignore_errors: true
