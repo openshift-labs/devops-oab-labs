@@ -36,11 +36,10 @@
         oc create secret generic gogs-credentials --from-literal=username={{ gogs_user }} --from-literal=password={{ gogs_password }} -n {{ cicd_project}}
         oc label secret gogs-credentials credential.sync.jenkins.openshift.io=true -n {{ cicd_project}}
 
+    - name: process release pipeline template
+      template:
+        src: pipelne.yml.j2
+        dest: "{{ git_dir.path }}/pipelne.yml"
+
     - name: create release pipeline
-      shell: |
-        oc new-build . --name=catalog-release --strategy=pipeline -n {{ cicd_project}}
-        oc cancel-build bc/catalog-release -n {{ cicd_project}}
-        oc patch bc catalog-release  -p '{"spec":{"strategy":{"jenkinsPipelineStrategy":{"jenkinsfilePath":"Jenkinsfile.release"}}}}' -n {{ cicd_project}}
-        oc set env bc/catalog-release NEXUS_URL=http://nexus.{{ infra_project }}.svc:8081 STAGE_PROJECT={{ stage_project }} -n {{ cicd_project}}
-      args:
-        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+      shell: "oc create -f {{ git_dir.path }}/pipelne.yml -n {{ cicd_project}}"

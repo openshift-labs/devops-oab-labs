@@ -1,0 +1,28 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: catalog-build
+spec:
+  runPolicy: Serial
+  source:
+    git:
+      ref: master
+      uri: "http://{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+    type: Git
+  strategy:
+    jenkinsPipelineStrategy:
+      env:
+        - name: NEXUS_URL
+          value: "http://nexus.{{ infra_project }}.svc:8081"
+        - name: DEV_PROJECT
+          value: "{{ dev_project }}"
+      jenkinsfilePath: Jenkinsfile
+    type: JenkinsPipeline
+  triggers:
+    - github:
+        secret: CqPGlXcKJXXqKxW4Ye6z
+      type: GitHub
+    - generic:
+        secret: 4LXwMdx9vhQY4WXbLcFR
+      type: Generic
+    - type: ConfigChange

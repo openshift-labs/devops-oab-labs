@@ -31,11 +31,10 @@
       args:
         chdir: "{{ git_dir.path }}/catalog-spring-boot"
 
-    - name: create release pipeline
-      shell: |
-        oc new-build . --name=catalog-deploy-prod --strategy=pipeline -n {{ cicd_project}}
-        oc cancel-build bc/catalog-deploy-prod -n {{ cicd_project}}
-        oc patch bc catalog-deploy-prod  -p '{"spec":{"strategy":{"jenkinsPipelineStrategy":{"jenkinsfilePath":"Jenkinsfile.catalog-prod"}}}}' -n {{ cicd_project}}
-        oc set env bc/catalog-deploy-prod PROD_PROJECT={{ prod_project }} PROD_REGISTRY={{ prod_registry }} PROD_MASTER={{ prod_master }} -n {{ cicd_project}}
-      args:
-        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+    - name: process catalog deploy pipeline template
+      template:
+        src: pipelne.yml.j2
+        dest: "{{ git_dir.path }}/pipelne.yml"
+
+    - name: create catalog deploy pipeline
+      shell: "oc create -f {{ git_dir.path }}/pipelne.yml -n {{ cicd_project}}"

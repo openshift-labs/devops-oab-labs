@@ -39,10 +39,10 @@
       args:
         chdir: "{{ git_dir.path }}/catalog-spring-boot"
 
+    - name: process build pipeline template
+      template:
+        src: pipelne.yml.j2
+        dest: "{{ git_dir.path }}/pipelne.yml"
+
     - name: create build pipeline
-      shell: |
-        oc new-build . --name=catalog-build --strategy=pipeline -n {{ cicd_project}}
-        oc cancel-build bc/catalog-build -n {{ cicd_project}}
-        oc set env bc/catalog-build -e NEXUS_URL=http://nexus.{{ infra_project }}.svc:8081 -e DEV_PROJECT={{ dev_project}} -n {{ cicd_project}}
-      args:
-        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+      shell: "oc create -f {{ git_dir.path }}/pipelne.yml -n {{ cicd_project}}"

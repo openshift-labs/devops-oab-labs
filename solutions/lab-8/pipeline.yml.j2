@@ -1,0 +1,30 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: catalog-deploy-prod
+spec:
+  runPolicy: Serial
+  source:
+    git:
+      ref: master
+      uri: "http://{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+    type: Git
+  strategy:
+    jenkinsPipelineStrategy:
+      env:
+        - name: PROD_REGISTRY
+          value: "{{ prod_registry }}"
+        - name: PROD_CLUSTER
+          value: "{{ prod_master }}"
+        - name: PROD_PROJECT
+          value: "{{ prod_project }}"
+      jenkinsfilePath: Jenkinsfile.catalog-prod
+    type: JenkinsPipeline
+  triggers:
+    - github:
+        secret: CqPGlXcKJXXqKxW4Ye6z
+      type: GitHub
+    - generic:
+        secret: 4LXwMdx9vhQY4WXbLcFR
+      type: Generic
+    - type: ConfigChange
