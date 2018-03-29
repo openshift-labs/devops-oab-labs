@@ -46,30 +46,3 @@
         oc set env bc/catalog-build -e NEXUS_URL=http://nexus.{{ infra_project }}.svc:8081 -e DEV_PROJECT={{ dev_project}} -n {{ cicd_project}}
       args:
         chdir: "{{ git_dir.path }}/catalog-spring-boot"
-        
-    - name: extract webhook secret
-      shell: |
-        oc get bc catalog-build -o=jsonpath='{.spec.triggers[?(@.type=="Generic")].generic.secret}' -n {{ cicd_project}}
-      register: webhook_secret_result
-
-    - name: create webhook
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/repos/{{ gogs_user }}/catalog-spring-boot/hooks
-        method: POST
-        body: >
-          {
-            "type": "gogs",
-            "config": {
-              "url": "{{ openshift_master }}/oapi/v1/namespaces/{{ cicd_project }}/buildconfigs/catalog-build/webhooks/{{ webhook_secret_result.stdout }}/generic",
-              "content_type": "json"
-            },
-            "events": [
-              "push"
-            ],
-            "active": true
-          }
-        body_format: json
-        user: "{{ gogs_user }}"
-        password: "{{ gogs_password }}"
-        status_code: 200,201
-        force_basic_auth: true

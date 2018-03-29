@@ -1,0 +1,41 @@
+---
+- name: Solve Lab 8
+  hosts: localhost
+  gather_facts: false
+  run_once: true
+  vars_files:
+  - ../vars.yml
+      
+  tasks:
+    - name: create temporary git directory
+      tempfile:
+        state: directory
+        prefix: catalog-git
+      register: git_dir
+
+    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+      args:
+        chdir: "{{ git_dir.path }}"
+
+    - name: create release jenkinsfile
+      copy:
+        src: Jenkinsfile.catalog-prod
+        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile.catalog-prod"
+
+    - name: push deploy catalog jenkinsfile to catalog-spring-boot git repository
+      shell: |
+        git add Jenkinsfile.catalog-prod
+        git commit -m "canary prod pipeline added"
+        git push origin master
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+
+    - name: create release pipeline
+      shell: |
+        oc new-build . --name=catalog-deploy-prod --strategy=pipeline -n {{ cicd_project}}
+        oc cancel-build bc/catalog-deploy-prod -n {{ cicd_project}}
+        oc patch bc catalog-deploy-prod  -p '{"spec":{"strategy":{"jenkinsPipelineStrategy":{"jenkinsfilePath":"Jenkinsfile.catalog-prod"}}}}' -n {{ cicd_project}}
+        oc set env bc/catalog-deploy-prod PROD_PROJECT={{ prod_project }} PROD_REGISTRY={{ prod_registry }} PROD_MASTER={{ prod_master }} -n {{ cicd_project}}
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"

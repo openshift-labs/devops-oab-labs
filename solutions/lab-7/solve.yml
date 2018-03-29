@@ -1,0 +1,46 @@
+---
+- name: Solve Lab 7
+  hosts: localhost
+  gather_facts: false
+  run_once: true
+  vars_files:
+  - ../vars.yml
+      
+  tasks:
+    - name: create prod credentials secret
+      shell: |
+        oc create secret generic prod-credentials --from-literal=username=openshift --from-literal=password={{ prod_token }} -n {{ cicd_project}}
+        oc label secret prod-credentials credential.sync.jenkins.openshift.io=true -n {{ cicd_project}}
+
+    - name: create temporary git directory
+      tempfile:
+        state: directory
+        prefix: catalog-git
+      register: git_dir
+
+    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+      args:
+        chdir: "{{ git_dir.path }}"
+
+    - name: create release jenkinsfile
+      copy:
+        src: Jenkinsfile.create-prod
+        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile.create-prod"
+
+    - name: push release jenkinsfile to catalog-spring-boot git repository
+      shell: |
+        git add Jenkinsfile.create-prod
+        git commit -m "create prod pipeline added"
+        git push origin master
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+
+    - name: create release pipeline
+      shell: |
+        oc new-build . --name=coolstore-create-prod --strategy=pipeline -n {{ cicd_project}}
+        oc cancel-build bc/coolstore-create-prod -n {{ cicd_project}}
+        oc patch bc coolstore-create-prod  -p '{"spec":{"strategy":{"jenkinsPipelineStrategy":{"jenkinsfilePath":"Jenkinsfile.create-prod"}}}}' -n {{ cicd_project}}
+        oc set env bc/coolstore-create-prod PROD_PROJECT={{ prod_project }} PROD_REGISTRY={{ prod_registry }} PROD_MASTER={{ prod_master }} -n {{ cicd_project}}
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"
