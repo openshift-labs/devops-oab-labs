@@ -1,11 +1,12 @@
 # Lab Solution Variables
 
 # OpenShift Master
-openshift_master: 
+openshift_master: https://52.208.176.25:8443
 
 # Projects
 project_suffix: 
 dev_project: dev{{project_suffix}}
+stage_project: stage{{project_suffix}}
 cicd_project: cicd{{project_suffix}}
 infra_project: lab-infra
 
@@ -14,7 +15,7 @@ github_account: openshift-labs
 github_ref: master
 
 # Gogs
-gogs_hostname: 
+gogs_hostname: gogs-lab-infra.apps.dev.openshiftdemos.com
 gogs_admin_user: gogs
 gogs_admin_password: openshift
 gogs_user: developer

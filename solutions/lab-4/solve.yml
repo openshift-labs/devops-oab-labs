@@ -1,0 +1,46 @@
+---
+- name: Solve Lab 4
+  hosts: localhost
+  gather_facts: false
+  run_once: true
+  vars_files:
+  - ../vars.yml
+      
+  tasks:
+    - name: create temporary git directory
+      tempfile:
+        state: directory
+        prefix: catalog-git
+      register: git_dir
+
+    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+      args:
+        chdir: "{{ git_dir.path }}"
+
+    - name: create release jenkinsfile
+      copy:
+        src: Jenkinsfile.release
+        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile.release"
+
+    - name: push release jenkinsfile to catalog-spring-boot git repository
+      shell: |
+        git add Jenkinsfile.release
+        git commit -m "release pipeline added"
+        git push origin master
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+
+    - name: create gogs credentials secret
+      shell: |
+        oc create secret generic gogs-credentials --from-literal=username={{ gogs_user }} --from-literal=password={{ gogs_password }} -n {{ cicd_project}}
+        oc label secret gogs-credentials credential.sync.jenkins.openshift.io=true -n {{ cicd_project}}
+
+    - name: create release pipeline
+      shell: |
+        oc new-build . --name=catalog-release --strategy=pipeline -n {{ cicd_project}}
+        oc cancel-build bc/catalog-release -n {{ cicd_project}}
+        oc patch bc catalog-release  -p '{"spec":{"strategy":{"jenkinsPipelineStrategy":{"jenkinsfilePath":"Jenkinsfile.release"}}}}' -n {{ cicd_project}}
+        oc set env bc/catalog-release NEXUS_URL=http://nexus.{{ infra_project }}.svc:8081 STAGE_PROJECT={{ stage_project }} -n {{ cicd_project}}
+      args:
+        chdir: "{{ git_dir.path }}/catalog-spring-boot"

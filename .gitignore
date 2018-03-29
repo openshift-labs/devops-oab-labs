@@ -3,6 +3,7 @@
 *.class
 .project
 .classpath
+*.retry
 
 tmp/
 target/

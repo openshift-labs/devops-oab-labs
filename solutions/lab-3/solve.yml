@@ -46,7 +46,7 @@
         oc set env bc/catalog-build -e NEXUS_URL=http://nexus.{{ infra_project }}.svc:8081 -e DEV_PROJECT={{ dev_project}} -n {{ cicd_project}}
       args:
         chdir: "{{ git_dir.path }}/catalog-spring-boot"
-
+        
     - name: extract webhook secret
       shell: |
         oc get bc catalog-build -o=jsonpath='{.spec.triggers[?(@.type=="Generic")].generic.secret}' -n {{ cicd_project}}
