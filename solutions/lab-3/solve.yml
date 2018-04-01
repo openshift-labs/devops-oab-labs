@@ -18,28 +18,50 @@
     - name: create temporary git directory
       tempfile:
         state: directory
-        prefix: catalog-git
+        prefix: cd-infra-git
       register: git_dir
 
-    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
-      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+    - name: check if cd-infra git repository exists
+      uri:
+        url: http://{{ gogs_hostname }}/api/v1/repos/{{ gogs_user }}/cd-infra
+        user: "{{ gogs_user }}"
+        password: "{{ gogs_password }}"
+        force_basic_auth: true
+        status_code: 200,404
+      register: repo_result
+
+    - name: create cd-infra git repository
+      uri:
+        url: http://{{ gogs_hostname }}/api/v1/user/repos
+        method: POST
+        body: '{"name": "cd-infra", "private": false}'
+        body_format: json
+        user: "{{ gogs_user }}"
+        password: "{{ gogs_password }}"
+        status_code: 200,201
+        force_basic_auth: true
+      when: repo_result.status != 200
+
+
+    - name: clone cd-infra git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/cd-infra.git"
       args:
         chdir: "{{ git_dir.path }}"
 
-    - name: create jenkinsfile
-      copy:
-        src: Jenkinsfile
-        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile"
+    - name: create build jenkinsfile
+      template:
+        src: Jenkinsfile.catalog-build.j2
+        dest: "{{ git_dir.path }}/cd-infra/Jenkinsfile.catalog-build"
 
-    - name: push jenkinsfile to catalog-spring-boot git repository
+    - name: push jenkinsfile to cd-infra git repository
       shell: |
         git add Jenkinsfile.catalog-build
         git commit -m "build pipeline added"
         git push origin master
       args:
-        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+        chdir: "{{ git_dir.path }}/cd-infra"
 
-    - name: process build pipeline template
+    - name: create build pipeline yaml
       template:
         src: pipeline.yml.j2
         dest: "{{ git_dir.path }}/pipelne.yml"

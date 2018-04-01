@@ -10,26 +10,26 @@
     - name: create temporary git directory
       tempfile:
         state: directory
-        prefix: catalog-git
+        prefix: cd-infra-git
       register: git_dir
 
-    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
-      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+    - name: clone cd-infra git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/cd-infra.git"
       args:
         chdir: "{{ git_dir.path }}"
 
     - name: create release jenkinsfile
       copy:
         src: Jenkinsfile.catalog-prod
-        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile.catalog-prod"
+        dest: "{{ git_dir.path }}/cd-infra/Jenkinsfile.catalog-prod"
 
-    - name: push deploy catalog jenkinsfile to catalog-spring-boot git repository
+    - name: push deploy catalog jenkinsfile to cd-infra git repository
       shell: |
         git add Jenkinsfile.catalog-prod
         git commit -m "canary prod pipeline added"
         git push origin master
       args:
-        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+        chdir: "{{ git_dir.path }}/cd-infra"
 
     - name: process catalog deploy pipeline template
       template:

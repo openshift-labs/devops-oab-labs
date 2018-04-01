@@ -7,7 +7,7 @@ spec:
   source:
     git:
       ref: master
-      uri: "http://{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+      uri: "http://{{ gogs_hostname }}/{{ gogs_user }}/cd-infra.git"
     type: Git
   strategy:
     jenkinsPipelineStrategy:
@@ -16,7 +16,7 @@ spec:
           value: "http://nexus.{{ infra_project }}.svc:8081"
         - name: DEV_PROJECT
           value: "{{ dev_project }}"
-      jenkinsfilePath: Jenkinsfile
+      jenkinsfilePath: Jenkinsfile.catalog-build
     type: JenkinsPipeline
   triggers:
     - github:
