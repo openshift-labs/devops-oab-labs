@@ -33,7 +33,7 @@
 
     - name: push jenkinsfile to catalog-spring-boot git repository
       shell: |
-        git add Jenkinsfile
+        git add Jenkinsfile.catalog-build
         git commit -m "build pipeline added"
         git push origin master
       args:
