@@ -25,7 +25,7 @@ called `solve.yml` which solves the lab automatically.
 * Run the solution playbook
 
   ```
-  ansible-playbook solutions/lab-2/solve.yml @/tmp/vars.yml
-  ansible-playbook solutions/lab-3/solve.yml @/tmp/vars.yml
-  ansible-playbook solutions/lab-4/solve.yml @/tmp/vars.yml
+  ansible-playbook solutions/lab-2/solve.yml -e @/tmp/vars.yml
+  ansible-playbook solutions/lab-3/solve.yml -e @/tmp/vars.yml
+  ansible-playbook solutions/lab-4/solve.yml -e @/tmp/vars.yml
   ```
