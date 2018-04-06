@@ -1,0 +1,6 @@
+---
+#service_name: "{{ lookup('env','SERVICE_NAME') | default('do_centos_mysql', true) }}"
+my_pub_key: "{{ lookup('file', '/opt/apb/id_rsa.pub') }}"
+#api_key: "{{ lookup('env','DO_ACCESS_TOKEN')}}
+do_image: centos-7-x64
+do_region: ams3

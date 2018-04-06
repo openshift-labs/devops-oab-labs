@@ -1,0 +1,87 @@
+- name: download rpm file
+  get_url:
+    url: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+    dest: /root/mysql57-community-release-el7-9.noarch.rpm
+
+- name: add new yum repos
+  shell: |
+    rpm -ivh mysql57-community-release-el7-9.noarch.rpm
+
+- name: ensure mysql is installed
+  yum:
+    name: "{{ item }}"
+    update_cache: true
+    state: latest
+  with_items:
+  - mysql-server
+  - MySQL-python
+  tags: packages
+
+- name: create my.cnf file from template
+  template:
+    src: templates/my.cnf.j2
+    dest: /etc/my.cnf
+    mode: 0644
+
+- name: ensure the MySQL service is running
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: create init.sql file
+  copy:
+    dest: /tmp/init.sql
+    content: |
+      FLUSH PRIVILEGES;
+      ALTER USER 'root'@'localhost' IDENTIFIED BY '{{db_root_password}}';
+
+- name: create vars.sql filter
+  copy:
+    dest: /tmp/vars.sql
+    content: |
+      SET GLOBAL validate_password_policy=LOW;
+      SET GLOBAL validate_password_length=1;
+      SET GLOBAL validate_password_mixed_case_count=0;
+      SET GLOBAL validate_password_number_count=0;
+      SET GLOBAL validate_password_special_char_count=0;
+
+- name: change root password
+  shell: |
+    mysql -u root mysql < /tmp/init.sql
+
+- name: create my.cnf file
+  copy:
+    dest: /root/.my.cnf
+    content: |
+      [client]
+      user=root
+      password={{db_root_password}}
+
+- name: remove skip-grant-table after root pwd change
+  lineinfile:
+    path: /etc/my.cnf
+    line: 'skip-grant-tables = true'
+    state: absent
+
+- name: ensure MySQL is restarted
+  service:
+    name: mysqld
+    state: restarted
+    enabled: yes
+
+- name: change global vars
+  shell: |
+    mysql -u root mysql < /tmp/vars.sql
+
+- name: ensure database is created
+  mysql_db:
+    name: "{{db_name}}"
+
+- name: create database user
+  mysql_user:
+    user: "{{db_user}}"
+    password: "{{db_password}}"
+    priv: '*.*:ALL'
+    state: present
+    host: '%'

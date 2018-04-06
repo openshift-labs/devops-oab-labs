@@ -1,0 +1,78 @@
+_params: &_params
+  - name: service_name
+    title: Database service name
+    description: The name of the service. Used to name droplet and Openshit service
+    type: string
+    default: domysql
+    pattern: "^[a-zA-Z0-9]+[a-zA-Z0-9]*[a-zA-Z0-9]+$"
+    required: true
+  - name: db_name
+    title: Database name
+    description: The name of the MySQL database
+    type: string
+    default: catalog
+    pattern: "^[a-zA-Z0-9_]*[a-zA-Z_]+[a-zA-Z0-9_]*$"
+    required: true
+  - name: db_user
+    title: Database username 
+    description: Username that will be used to connect to MySQL
+    type: string
+    default: admin
+    pattern: "^[a-zA-Z0-9_]*[a-zA-Z_]+[a-zA-Z0-9_]*$"
+    required: true
+  - name: db_password
+    title: Database user password
+    description: Password to connect to MySQL (generated if blank)
+    type: string
+    required: true
+    display_type: password
+  - name: db_root_password
+    title: Database root user password
+    description: Root user password to connect to MySQL (generated if blank)
+    type: string
+    required: true
+    display_type: password
+  - name: do_access_token
+    title: Digital Ocean API access token
+    description: Digital Ocean API access token
+    type: string
+    default: d6243375b34b222a97a3d0b4dbc3504a2ae02236337e39d9a9547f0c5fde6d65
+    required: true    
+version: 1.0
+name: mysql-digital-ocean-apb
+description: MySQL database from Digital Ocean
+bindable: true
+async: optional
+tags:
+- database
+- mysql
+metadata:
+  displayName: "Digital Ocean MySQL (APB)"
+  longDescription: "MySQL 5.7 running on CentOs 7.4 in Digital Ocean"
+  console.openshift.io/iconClass: icon-mysql-database
+  providerDisplayName: "Red Hat, Inc."
+plans:
+  - name: 512mb
+    description: Small droplet with MySQL
+    free: true
+    metadata:
+      displayName: Default (512MB)
+      longDescription: This plan provides small (512MB) droplet from Digital Ocean with MySQL
+      cost: $0.00
+    parameters: *_params
+  - name: 2gb
+    description: Small droplet with MySQL
+    free: true
+    metadata:
+      displayName: Medium (2GB)
+      longDescription: This plan provides medium (2GB) droplet from Digital Ocean with MySQL
+      cost: $10.00 monthly
+    parameters: *_params
+  - name: 4gb
+    description: Small droplet with MySQL
+    free: true
+    metadata:
+      displayName: Large (4GB)
+      longDescription: This plan provides large (4GB) droplet from Digital Ocean with MySQL
+      cost: $40.00 monthly
+    parameters: *_params
