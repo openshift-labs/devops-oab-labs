@@ -9,3 +9,5 @@ Docs coming soon
 2. Digital Ocean API key is now given as parameter since adding  customer secrets not working like expected.
 
 3. Add verify role verify that MySQL is running.
+
+4. Add region as enum to parameters
