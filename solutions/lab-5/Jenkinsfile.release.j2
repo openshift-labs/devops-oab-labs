@@ -1,0 +1,71 @@
+def releaseTag
+
+pipeline {
+  agent {
+      label 'maven'
+  }
+  stages {
+    stage('Prepare') {
+      steps {
+        git url: 'http://{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git'
+        sh "git config --local user.email 'jenkins@cicd.com'"
+        sh "git config --local user.name 'jenkins'"
+        
+        script {
+          releaseTag = readMavenPom().getVersion().replace("-SNAPSHOT", "")
+        }
+      }
+    }
+    stage('Release Code') {
+      environment {
+        SCM_GIT_URL = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            withCredentials([usernamePassword(credentialsId: "${openshift.project()}-gogs-credentials", usernameVariable: "GOGS_USERNAME", passwordVariable: "GOGS_PASSWORD")]) {
+              sh "mvn --batch-mode release:clean release:prepare release:perform -s .settings.xml"
+            }
+          }
+        }
+      }
+    }
+    stage('Release Image') {
+      steps {
+        script {
+          openshift.withCluster() {
+            echo "Releasing image version ${releaseTag}"
+            openshift.tag("${openshift.project()}/catalog:latest", "${openshift.project()}/catalog:${releaseTag}")
+            openshift.tag("${openshift.project()}/web-ui:latest", "${openshift.project()}/web-ui:${releaseTag}")
+          }
+        }
+      }
+    }    
+    stage('Tear-down STAGE') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject(env.STAGE_PROJECT) {
+              openshift.raw('delete all,cm,pvc --all')
+            }
+          }
+        }
+      }
+    }    
+    stage('Deploy STAGE') {
+      steps {
+        script {
+          openshift.withCluster() {
+            def imageNamespace = openshift.project()
+            openshift.withProject(env.STAGE_PROJECT) {
+              def template = 'https://raw.githubusercontent.com/openshift-labs/devops-oab-labs/master/openshift/coolstore-template.yaml'
+              openshift.apply(
+                openshift.process("-f", template, "-p", "IMAGE_VERSION=${releaseTag}", "-p", "IMAGE_NAMESPACE=${imageNamespace}")
+              )
+            }
+          }
+        }
+      }
+    }    
+  }
+}
