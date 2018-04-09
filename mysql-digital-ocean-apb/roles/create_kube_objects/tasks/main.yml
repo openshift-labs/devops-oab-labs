@@ -1,0 +1,48 @@
+- name: find out droplet ip address
+  uri:
+    url: "https://api.digitalocean.com/v2/tags/{{ _apb_service_instance_id }}"
+    headers:
+      Authorization: "Bearer {{ do_access_token }}"
+    method: GET
+  register: response
+
+- name: "create {{ service_name }} endpoint"
+  k8s_v1_endpoints:
+    name: "{{ service_name }}"
+    namespace: '{{ namespace }}'
+    subsets:
+    - addresses:
+      - ip: "{{response.json.tag.resources.droplets.last_tagged.networks.v4[0].ip_address}}"
+      ports:
+      - name: mysql
+        port: "{{db_port}}"
+    labels:
+      service: "{{ service_name }}"
+    state: present
+  register: endpoint
+  ignore_errors: yes
+
+- name: "create {{ service_name }} service"
+  k8s_v1_service:
+    name: "{{ service_name }}"
+    namespace: '{{ namespace }}'
+    labels:
+      service: "{{ service_name }}"
+    ports:
+      - name: mysql
+        port: "{{db_port}}"
+        target_port: "{{db_port}}"
+        protocol: TCP
+        nodePort: 0
+  register: service
+  ignore_errors: yes
+
+- name: encode bind credentials
+  asb_encode_binding:
+    fields:
+      DB_SERVICE_NAME: "{{service_name}}"
+      DB_SERVICE_PORT: "{{db_port}}"
+      DB_USER: "{{ db_user }}"
+      DB_PASSWORD: "{{ db_password }}"
+      DB_NAME: "{{ db_name }}"
+      DB_ROOT_PASSWORD: "{{db_root_password}}"

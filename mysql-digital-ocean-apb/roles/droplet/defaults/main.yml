@@ -1,0 +1,4 @@
+---
+my_pub_key: "{{ lookup('file', '/opt/apb/id_rsa.pub') }}"
+do_image: centos-7-x64
+do_region: ams3
