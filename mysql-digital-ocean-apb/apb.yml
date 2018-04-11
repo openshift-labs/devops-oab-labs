@@ -6,37 +6,26 @@ _params: &_params
     default: domysql
     pattern: "^[a-zA-Z0-9]+[a-zA-Z0-9]*[a-zA-Z0-9]+$"
     required: true
-  - name: db_name
+  - name: mysql_database
     title: Database name
     description: The name of the MySQL database
     type: string
     default: catalog
     pattern: "^[a-zA-Z0-9_]*[a-zA-Z_]+[a-zA-Z0-9_]*$"
     required: true
-  - name: db_user
+  - name: mysql_user
     title: Database username
     description: Username that will be used to connect to MySQL
     type: string
     default: admin
     pattern: "^[a-zA-Z0-9_]*[a-zA-Z_]+[a-zA-Z0-9_]*$"
     required: true
-  - name: db_password
+  - name: mysql_password
     title: Database user password
-    description: Password to connect to MySQL (generated if blank)
+    description: Password to connect to MySQL
     type: string
     required: true
     display_type: password
-  - name: db_root_password
-    title: Database root user password
-    description: Root user password to connect to MySQL (generated if blank)
-    type: string
-    required: true
-    display_type: password
-  - name: do_access_token
-    title: Digital Ocean API access token
-    description: Digital Ocean API access token
-    type: string
-    required: true    
 version: 1.0
 name: mysql-digital-ocean-apb
 description: MySQL database from Digital Ocean
