@@ -1,11 +1,11 @@
 - name: download rpm file
   get_url:
-    url: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
-    dest: /root/mysql57-community-release-el7-9.noarch.rpm
+    url: "https://dev.mysql.com/get/{{ mysql_rpm }}"
+    dest: "/root/{{ mysql_rpm }}"
 
 - name: add new yum repos
   shell: |
-    rpm -ivh mysql57-community-release-el7-9.noarch.rpm
+    rpm -ivh {{ mysql_rpm }}
 
 - name: ensure mysql is installed
   yum:
@@ -34,7 +34,7 @@
     dest: /tmp/init.sql
     content: |
       FLUSH PRIVILEGES;
-      ALTER USER 'root'@'localhost' IDENTIFIED BY '{{db_root_password}}';
+      ALTER USER 'root'@'localhost' IDENTIFIED BY '{{mysql_root_password}}';
 
 - name: create vars.sql filter
   copy:
@@ -56,7 +56,7 @@
     content: |
       [client]
       user=root
-      password={{db_root_password}}
+      password={{mysql_root_password}}
 
 - name: remove skip-grant-table after root pwd change
   lineinfile:
@@ -76,12 +76,12 @@
 
 - name: ensure database is created
   mysql_db:
-    name: "{{db_name}}"
+    name: "{{mysql_database}}"
 
 - name: create database user
   mysql_user:
-    user: "{{db_user}}"
-    password: "{{db_password}}"
+    user: "{{mysql_user}}"
+    password: "{{mysql_password}}"
     priv: '*.*:ALL'
     state: present
     host: '%'

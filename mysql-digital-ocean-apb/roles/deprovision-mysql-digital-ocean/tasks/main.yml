@@ -2,7 +2,7 @@
   uri:
     url: "https://api.digitalocean.com/v2/tags/{{_apb_service_instance_id}}"
     headers:
-      Authorization: "Bearer {{ do_access_token }}"
+      Authorization: "Bearer {{ api_key }}"
     method: GET
   register: response
 
@@ -13,14 +13,14 @@
 - name: delete droplet
   digital_ocean:
     state: deleted
-    api_token: "{{ do_access_token }}"
+    api_token: "{{ api_key }}"
     id: "{{response.json.tag.resources.droplets.last_tagged.id}}"
 
 - name: list all ssh keys
   uri:
     url: "https://api.digitalocean.com/v2/account/keys"
     headers:
-      Authorization: "Bearer {{ do_access_token }}"
+      Authorization: "Bearer {{ api_key }}"
     method: GET
   register: key_response
 
@@ -28,7 +28,7 @@
   uri:
     url: "https://api.digitalocean.com/v2/account/keys/{{item.id}}"
     headers:
-      Authorization: "Bearer {{ do_access_token }}"
+      Authorization: "Bearer {{ api_key }}"
       Content-Type: "application/json"
     method: DELETE
     status_code: 200,201,204
@@ -46,6 +46,13 @@
 - name: "delete {{service_name}} service"
   k8s_v1_service:
     name: "{{service_name}}"
+    namespace: '{{ namespace }}'
+    state: absent
+  ignore_errors: yes
+  
+- name: "delete {{service_name}}-key service"
+  k8s_v1_secret:
+    name: "{{service_name}}-key"
     namespace: '{{ namespace }}'
     state: absent
   ignore_errors: yes

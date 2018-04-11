@@ -1,4 +1,4 @@
 ---
-my_pub_key: "{{ lookup('file', '/opt/apb/id_rsa.pub') }}"
+api_key: "{{ lookup('file', '/etc/apb-secrets/apb-digital-ocean-apikey/api_key') }}"
 do_image: centos-7-x64
 do_region: ams3

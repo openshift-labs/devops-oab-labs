@@ -1,3 +1,2 @@
 ---
-db_port: 3306
 api_key: "{{ lookup('file', '/etc/apb-secrets/apb-digital-ocean-apikey/api_key') }}"
