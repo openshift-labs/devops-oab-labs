@@ -282,6 +282,7 @@ parameters:
 - displayName: Image Namespace
   description: The namespaces that contains the catalog and web images
   name: IMAGE_NAMESPACE
+  value: cicd
 - description: Catalog Service database user name
   displayName: Catalog Database Username
   from: user[a-zA-Z0-9]{3}

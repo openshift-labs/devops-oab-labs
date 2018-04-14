@@ -116,4 +116,5 @@ parameters:
 - displayName: Image Namespace
   description: The namespace to push the built Catalog images to
   name: IMAGE_NAMESPACE
+  value: cicd
   
