@@ -2,6 +2,10 @@ env:
   global:
   - WEB_IMAGE_REPO=siamaksade/rhsummit18-devops-web
 
+cache:
+  directories:
+  - $HOME/.m2
+
 language: java
 
 jdk:
@@ -17,5 +21,5 @@ before_install:
 script:
   - mvn -f catalog-spring-boot package
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - ${HOME}/bin/s2i build ./web centos/nodejs-8-centos7 $WEB_IMAGE_REPO:$TAG
+  - ${HOME}/bin/s2i build ./web-nodejs centos/nodejs-8-centos7 $WEB_IMAGE_REPO:$TAG
   - docker push $WEB_IMAGE_REPO:$TAG
