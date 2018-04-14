@@ -14,10 +14,6 @@ before_install:
   - curl -sL -o $HOME/s2i.tar.gz https://github.com/openshift/source-to-image/releases/download/v1.1.9/source-to-image-v1.1.9-db2b4645-linux-amd64.tar.gz 
   - pushd $HOME/bin && tar xvfz $HOME/s2i.tar.gz && popd
 
-env:
-  - BUILD_CMD=""
-  - BUILD_CMD="npm install --prefix web-nodejs"
-
 script:
   - mvn -f catalog-spring-boot package
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
