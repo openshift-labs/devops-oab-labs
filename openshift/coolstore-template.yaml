@@ -94,7 +94,7 @@ objects:
         - web-ui
         from:
           kind: ImageStreamTag
-          name: web-ui:${IMAGE_VERSION}
+          name: web-ui:${WEB_IMAGE_VERSION}
           namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
@@ -197,7 +197,7 @@ objects:
         - catalog
         from:
           kind: ImageStreamTag
-          name: catalog:${IMAGE_VERSION}
+          name: catalog:${CATALOG_IMAGE_VERSION}
           namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
@@ -334,9 +334,14 @@ objects:
       type: ImageChange
     - type: ConfigChange
 parameters:
-- displayName: Image Version
-  description: Catalog and Web image versions to deploy
-  name: IMAGE_VERSION
+- displayName: Catalog Image Version
+  description: Catalog image version to deploy
+  name: CATALOG_IMAGE_VERSION
+  required: true
+  value: latest
+- displayName: Web UI Image Version
+  description: Web UI image versions to deploy
+  name: WEB_IMAGE_VERSION
   required: true
   value: latest
 - displayName: Image Namespace

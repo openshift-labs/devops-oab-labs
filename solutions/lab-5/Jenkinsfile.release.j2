@@ -34,9 +34,8 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            echo "Releasing image version ${releaseTag}"
+            echo "Releasing catalog image version ${releaseTag}"
             openshift.tag("${openshift.project()}/catalog:latest", "${openshift.project()}/catalog:${releaseTag}")
-            openshift.tag("${openshift.project()}/web-ui:latest", "${openshift.project()}/web-ui:${releaseTag}")
           }
         }
       }
