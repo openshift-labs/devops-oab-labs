@@ -11,6 +11,13 @@
       shell: "oc create -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/catalog-is.yaml -n {{ cicd_project }}"
       ignore_errors: true
 
+    - name: deploy web in {{ dev_project }}
+      shell: |
+        oc new-app -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/web-template.yaml \
+              --param=IMAGE_NAMESPACE={{ cicd_project }} \
+              -n {{ dev_project }}
+      ignore_errors: true
+
     - name: deploy catalog in {{ dev_project }}
       shell: |
         oc new-app -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/catalog-template.yaml \
@@ -20,9 +27,3 @@
               -n {{ dev_project }}
       ignore_errors: true
 
-    - name: deploy web in {{ dev_project }}
-      shell: |
-        oc new-app -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/web-template.yaml \
-              --param=IMAGE_NAMESPACE={{ cicd_project }} \
-              -n {{ dev_project }}
-      ignore_errors: true
