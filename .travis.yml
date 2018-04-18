@@ -1,10 +1,8 @@
 env:
   global:
   - WEB_IMAGE_REPO=siamaksade/rhsummit18-devops-web
-  - APB_IMAGE_REPO=siamaksade/mysql-digital-ocean-apb
+  - APB_IMAGE_REPO=tpahonen/mysql-digital-ocean-apb
   - APB_DIR=mysql-digital-ocean-apb
-  - secure: "Dlgz1J1AOEuYnwJ3QIiqjq1y3szuqoNnSXs/TsmRwkje2B7YNVtniOO1de0Qvg8U1GU0OQjkWR4svSUvVDha9kT24Pxac7GXZjBwiEkCgQopTJIL/2ggfDPoVw8EKILehY02rB0Jm0oZoBucxpZ3z8sPn6U7lq/20sTL2EiS98zFbt3iQFjpFQ9Q1tIuUwaTNzaQwd4RayPLdypj875hdQwTA5S4LQzF6bxn60f2LVnIK1pVEd+6boaYSuE8Cgw1ww8CEdbLNRKW1Z5VP1jBWd41Up4fD805F9963OZ1VQFOW0xNozUCsyW3woYs5U+tsNPJpWJfA0W1hxt9t49RmKRbcm0JTWTQOQFcWXRZGhTsri3G1OePvic2dWH/S/zyujGLDv0U6Q4FAaurYUz8GiWgXuSh+YCylow52dOL/j4NHKAP7cCGgt2JXqpP7quAEDPiciV0alXkm9amg72QXKRJeKvVrs2SFw2tkA0pjbZgllE+rPPiQdrvmwgDJzcex2stMkstGIsvdeLKcOgK0r/msJrihItbDYlC1xS5mllAXTOnEmYwKIDLJRznSRwjeB2jBdCTc0Ynmhc/ISnkQTdtOgBG+1eNylkn7/lTEyGqAaElbYbvLJqt6/53RwlzQwGoorxSqgqRz0df/QqkmEtueq9Jy6zEgyrOYjWYuNw="
-  - secure: "hUIqVXkt9VxKsYdsvnKPF2vQbto90bZtIjWSmL2G8AsFYEueDgjKD6l7riRaDezBjlaLKQGzWXFnRz3mEzPyT5vAuZpTqln3DbnxNii0s2TDHl+O3mXIg6sqqz9bBZWl17W8TkNbhEQ+7ZPt/mbcRxWmbwZ6WbK+u95AKdaE7SMHx72bVYdn87DlNpCNjgF9XSNeV1CDhUl6azHMIDU3a/LOrJ2e7NazH6D5WD/h8m+fvxMezUnqJC9OWquaoK7olW3e1weoAKFR6ya12DxCajbZpDKDMsp0au/IC8MPwSja0LufLlkENAa1Df5yxDsZz2ZnKQvI1idHfWkQWTVxMARPbTPnS5sH9L9S7SYzHW3Il1sBEgSWu307i+qBNoawGbZHOYtfL47iLxg5F7JnahDJuYnQY4O9PB/3fJGPd2BDZ4ngGvhqMg9qcQwFOUY301gBfq4yeqwFpbPGTts9ZyFcvFx38qxwlZPTOSqiwJ4lLqjC4sxvEhak0zjqoYcrVcUg4qdt/RCCZ16fFdXdbvVcVPm99prakckazyXx1oMwXuVS9mXLUNEBu5AxqlIw/x0QWjgrf/C6iMSosHi5ghP3M18owgy4UQVFs9MQcNdH0gamiSSXxzor47Rfwe8LrKdz9Q/927TD9MUeadUywtOjvfTc5tn6wHeb/i4FJoo="
   
 cache:
   directories:
@@ -16,8 +14,7 @@ jdk:
   - oraclejdk8
 
 before_install:
-  - echo $DOCKER_USER_TPAHONEN
-  - docker login --username $DOCKER_USER_TPAHONEN --password $DOCKER_PASS_TPAHONEN
+  - docker login --username $DOCKER_USER --password $DOCKER_PASS
   - nvm install 4.4
   - cp .travis.settings.xml $HOME/.m2/settings.xml
   - curl -sL -o $HOME/s2i.tar.gz https://github.com/openshift/source-to-image/releases/download/v1.1.9/source-to-image-v1.1.9-db2b4645-linux-amd64.tar.gz 
@@ -28,5 +25,6 @@ script:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - ${HOME}/bin/s2i build ./web-nodejs centos/nodejs-8-centos7 $WEB_IMAGE_REPO:$TAG
   - docker push $WEB_IMAGE_REPO:$TAG
+  - docker login --username $DOCKER_USER_TA --password $DOCKER_PASS_TA
   - docker build -t $APB_IMAGE_REPO:$TAG ./$APB_DIR
   - docker push $APB_IMAGE_REPO:$TAG
