@@ -16,8 +16,8 @@ jdk:
   - oraclejdk8
 
 before_install:
-  - echo "$DOCKER_USER_TPAHONEN"
-  - docker login --username "$DOCKER_USER_TPAHONEN" --password "$DOCKER_PASS_TPAHONEN"
+  - echo $DOCKER_USER_TPAHONEN
+  - docker login --username $DOCKER_USER_TPAHONEN --password $DOCKER_PASS_TPAHONEN
   - nvm install 4.4
   - cp .travis.settings.xml $HOME/.m2/settings.xml
   - curl -sL -o $HOME/s2i.tar.gz https://github.com/openshift/source-to-image/releases/download/v1.1.9/source-to-image-v1.1.9-db2b4645-linux-amd64.tar.gz 
