@@ -1,7 +1,7 @@
 env:
   global:
   - WEB_IMAGE_REPO=siamaksade/rhsummit18-devops-web
-  - APB_IMAGE_REPO=tpahonen/mysql-digital-ocean-apb
+  - APB_IMAGE_REPO=siamaksade/mysql-digital-ocean-apb
   - APB_DIR=mysql-digital-ocean-apb
   
 cache:
@@ -25,6 +25,5 @@ script:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - ${HOME}/bin/s2i build ./web-nodejs centos/nodejs-8-centos7 $WEB_IMAGE_REPO:$TAG
   - docker push $WEB_IMAGE_REPO:$TAG
-  - docker login --username $DOCKER_USER_TA --password $DOCKER_PASS_TA
   - docker build -t $APB_IMAGE_REPO:$TAG ./$APB_DIR
   - docker push $APB_IMAGE_REPO:$TAG
