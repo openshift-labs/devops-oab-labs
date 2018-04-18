@@ -93,7 +93,7 @@ objects:
         - web-ui
         from:
           kind: ImageStreamTag
-          name: web-ui:${IMAGE_VERSION}
+          name: web-ui:${WEB_IMAGE_VERSION}
           namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
@@ -223,7 +223,7 @@ objects:
         - catalog
         from:
           kind: ImageStreamTag
-          name: catalog:${IMAGE_VERSION}
+          name: catalog:${CATALOG_IMAGE_VERSION}
           namespace: ${IMAGE_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
@@ -269,14 +269,20 @@ objects:
       spring.datasource.password=${SVCAT_DB_PASSWORD}
       spring.jpa.hibernate.ddl-auto=create
 parameters:
-- displayName: Image Version
-  description: Catalog and Web image versions to deploy
-  name: IMAGE_VERSION
+- displayName: Catalog Image Version
+  description: Catalog image version to deploy
+  name: CATALOG_IMAGE_VERSION
+  required: true
+  value: latest
+- displayName: Web Image Version
+  description: Web image version to deploy
+  name: WEB_IMAGE_VERSION
   required: true
   value: latest
 - displayName: Image Namespace
   description: The namespaces that contains the catalog and web images
   name: IMAGE_NAMESPACE
+  value: cicd
 - description: Catalog Service database user name
   displayName: Catalog Database Username
   from: user[a-zA-Z0-9]{3}

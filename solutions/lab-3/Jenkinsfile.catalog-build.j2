@@ -5,6 +5,7 @@ pipeline {
   stages {
     stage('Build JAR') {
       steps {
+        git url: 'http://{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git'
         sh "cp .settings.xml ~/.m2/settings.xml"
         sh "mvn package"
       }

@@ -10,26 +10,26 @@
     - name: create temporary git directory
       tempfile:
         state: directory
-        prefix: catalog-git
+        prefix: cd-infra-git
       register: git_dir
 
-    - name: clone catalog-spring-boot git repository to {{ git_dir.path }}
-      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git"
+    - name: clone cd-infra git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/cd-infra.git"
       args:
         chdir: "{{ git_dir.path }}"
-
+        
     - name: create release jenkinsfile
-      copy:
-        src: Jenkinsfile.release
-        dest: "{{ git_dir.path }}/catalog-spring-boot/Jenkinsfile.release"
+      template:
+        src: Jenkinsfile.release.j2
+        dest: "{{ git_dir.path }}/cd-infra/Jenkinsfile.release"
 
-    - name: push release jenkinsfile to catalog-spring-boot git repository
+    - name: push release jenkinsfile to cd-infra git repository
       shell: |
         git add Jenkinsfile.release
         git commit -m "release pipeline added"
         git push origin master
       args:
-        chdir: "{{ git_dir.path }}/catalog-spring-boot"
+        chdir: "{{ git_dir.path }}/cd-infra"
 
     - name: create gogs credentials secret
       shell: |

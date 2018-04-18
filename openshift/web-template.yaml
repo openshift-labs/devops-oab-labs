@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 metadata:
   annotations:
-    description: CoolStore Microservices Application Template
+    description: CoolStore Microservices Web UI Template
     iconClass: icon-java
     tags: microservice,jboss,spring
   name: coolstore
@@ -18,36 +18,6 @@ objects:
 #   spec:
 #     tags:
 #     - name: latest
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    name: web-ui
-    labels:
-      app: coolstore
-      component: web-ui
-  spec:
-    output:
-      to:
-        kind: ImageStreamTag
-        name: web-ui:latest
-        namespace: ${IMAGE_NAMESPACE}
-    source:
-      contextDir: ${GIT_CONTEXT_DIR}
-      git:
-        ref: ${GIT_REF}
-        uri: ${GIT_URI}
-      type: Git
-    strategy:
-      sourceStrategy:
-        from:
-          kind: ImageStreamTag
-          name: nodejs:4
-          namespace: openshift
-      type: Source
-    triggers:
-    - imageChange: {}
-      type: ImageChange
-    - type: ConfigChange
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -155,18 +125,6 @@ objects:
       kind: Service
       name: web-ui
 parameters:
-- description: Git source URI for application e.g. https://github.com/openshift-labs/devops-oab-labs.git
-  displayName: Git source repository
-  name: GIT_URI
-  required: true
-- displayName: Git branch/tag reference
-  name: GIT_REF
-  required: true
-  value: master
-- displayName: Git Context Dir
-  description: The subdirectory in the Git repository that contains the code e.g. web-nodejs
-  name: GIT_CONTEXT_DIR
-  required: false
 - description: Catalog service name exposing a REST API for the product list
   displayName: Catalog Service Name
   name: CATALOG_SERVICE
@@ -175,4 +133,10 @@ parameters:
 - displayName: Image Namespace
   description: The namespace to push the built Web UI images to
   name: IMAGE_NAMESPACE
+  value: cicd
   required: true
+- displayName: Image Version
+  description: Web UI image versions to deploy
+  name: IMAGE_VERSION
+  required: true
+  value: latest

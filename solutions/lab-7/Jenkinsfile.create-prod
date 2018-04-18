@@ -1,4 +1,4 @@
-def namespace, releaseTag, prodCluster, prodProject, prodToken
+def namespace, catalogReleaseTag, webReleaseTag, prodCluster, prodProject, prodToken
 
 pipeline {
   agent {
@@ -15,17 +15,20 @@ pipeline {
               prodToken = env.PROD_TOKEN
             }
 
-            def tags = openshift.selector("istag").objects().collect { it.metadata.name }.findAll { it.startsWith 'catalog:' }.collect { it.replaceAll(/catalog:(.*)/, "\$1") }.sort()
+            def catalogTags = openshift.selector("istag").objects().collect { it.metadata.name }.findAll { it.startsWith 'catalog:' }.collect { it.replaceAll(/catalog:(.*)/, "\$1") }.sort()
+            def webTags = openshift.selector("istag").objects().collect { it.metadata.name }.findAll { it.startsWith 'web-ui:' }.collect { it.replaceAll(/web-ui:(.*)/, "\$1") }.sort()
             timeout(5) {
               def inputs = input(
                 ok: "Deploy",
                 message: "Enter release version to promote to PROD",
                 parameters: [
                   string(defaultValue: "prod", description: 'Name of the PROD project to create', name: 'PROD Project Name'),
-                  choice(choices: tags.join('\n'), description: '', name: 'Release Version')
+                  choice(choices: catalogTags.join('\n'), description: '', name: 'Catalog Release Version')
+                  choice(choices: webTags.join('\n'), description: '', name: 'Web Release Version')
                 ]
               )
-              releaseTag = inputs['Release Version']
+              catalogReleaseTag = inputs['Catalog Release Version']
+              webReleaseTag = inputs['Web Release Version']
               prodProject = inputs['PROD Project Name']
             }
           }
@@ -45,10 +48,10 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            def srcCatalogRef = openshift.selector("istag", "catalog:${releaseTag}").object().image.dockerImageReference
-            def srcWebRef = openshift.selector("istag", "web-ui:${releaseTag}").object().image.dockerImageReference
-            def destCatalogRef = "${env.PROD_REGISTRY}/${prodProject}/catalog:${releaseTag}"
-            def destWebRef = "${env.PROD_REGISTRY}/${prodProject}/web-ui:${releaseTag}"
+            def srcCatalogRef = openshift.selector("istag", "catalog:${catalogReleaseTag}").object().image.dockerImageReference
+            def srcWebRef = openshift.selector("istag", "web-ui:${webReleaseTag}").object().image.dockerImageReference
+            def destCatalogRef = "${env.PROD_REGISTRY}/${prodProject}/catalog:${catalogReleaseTag}"
+            def destWebRef = "${env.PROD_REGISTRY}/${prodProject}/web-ui:${webReleaseTag}"
             def srcToken = readFile "/run/secrets/kubernetes.io/serviceaccount/token"
             sh "skopeo copy docker://${srcCatalogRef} docker://${destCatalogRef} --src-creds openshift:${srcToken} --dest-creds openshift:${prodToken} --src-tls-verify=false --dest-tls-verify=false"
             sh "skopeo copy docker://${srcWebRef} docker://${destWebRef} --src-creds openshift:${srcToken} --dest-creds openshift:${prodToken} --src-tls-verify=false --dest-tls-verify=false"
@@ -63,7 +66,7 @@ pipeline {
             openshift.withProject(prodProject) {
               def template = 'https://raw.githubusercontent.com/openshift-labs/devops-oab-labs/master/openshift/coolstore-apb-template.yaml'
               openshift.apply(
-                openshift.process("-f", template, "-p", "IMAGE_VERSION=${releaseTag}")
+                openshift.process("-f", template, "-p", "CATALOG_IMAGE_VERSION=${catalogReleaseTag}", "-p", "WEB_IMAGE_VERSION=${webReleaseTag}")
               )
             }
           }

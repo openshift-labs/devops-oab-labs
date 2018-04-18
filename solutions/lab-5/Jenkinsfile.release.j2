@@ -7,7 +7,7 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
-        sh "git checkout master"
+        git url: 'http://{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git'
         sh "git config --local user.email 'jenkins@cicd.com'"
         sh "git config --local user.name 'jenkins'"
         
@@ -34,9 +34,8 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            echo "Releasing image version ${releaseTag}"
+            echo "Releasing catalog image version ${releaseTag}"
             openshift.tag("${openshift.project()}/catalog:latest", "${openshift.project()}/catalog:${releaseTag}")
-            openshift.tag("${openshift.project()}/web-ui:latest", "${openshift.project()}/web-ui:${releaseTag}")
           }
         }
       }

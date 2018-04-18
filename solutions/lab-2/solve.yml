@@ -7,113 +7,15 @@
   - ../vars.yml
       
   tasks:
-    - name: check if user '{{ gogs_user }}' exists
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/users/{{ gogs_user }}
-        user: "{{ gogs_admin_user }}"
-        password: "{{ gogs_admin_password }}"
-        force_basic_auth: true
-        status_code: 200,404
-      register: user_result
-
-    - name: create gogs user '{{ gogs_user }}'
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/admin/users
-        method: POST
-        body: "{'login_name': '{{ gogs_user }}', 'username': '{{ gogs_user }}', 'email': '{{ gogs_user }}@gogs.com', 'password': '{{ gogs_password }}'}"
-        body_format: json
-        user: "{{ gogs_admin_user }}"
-        password: "{{ gogs_admin_password }}"
-        status_code: 200,201
-        force_basic_auth: true
-      when: user_result.status != 200
-
-    - name: check if catalog-spring-boot git repository exists
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/repos/{{ gogs_user }}/catalog-spring-boot
-        user: "{{ gogs_user }}"
-        password: "{{ gogs_password }}"
-        force_basic_auth: true
-        status_code: 200,404
-      register: repo_result
-
-    - name: create catalog-spring-boot git repository
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/user/repos
-        method: POST
-        body: '{"name": "catalog-spring-boot", "private": false}'
-        body_format: json
-        user: "{{ gogs_user }}"
-        password: "{{ gogs_password }}"
-        status_code: 200,201
-        force_basic_auth: true
-      when: repo_result.status != 200
-
-    - name: check if web-nodejs git repository exists
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/repos/{{ gogs_user }}/web-nodejs
-        user: "{{ gogs_user }}"
-        password: "{{ gogs_password }}"
-        force_basic_auth: true
-        status_code: 200,404
-      register: repo_result
-
-    - name: create web-nodejs git repository
-      uri:
-        url: http://{{ gogs_hostname }}/api/v1/user/repos
-        method: POST
-        body: '{"name": "web-nodejs", "private": false}'
-        body_format: json
-        user: "{{ gogs_user }}"
-        password: "{{ gogs_password }}"
-        status_code: 200,201
-        force_basic_auth: true
-      when: repo_result.status != 200
-
-    - name: create temporary git directory
-      tempfile:
-        state: directory
-        prefix: projects-git
-      register: git_dir
-      when: repo_result.status != 200
-
-    - name: unarchive projects source archive
-      unarchive:
-        remote_src: yes
-        src: "https://github.com/{{ github_account }}/devops-oab-labs/archive/{{ github_ref }}.zip"
-        dest: "{{ git_dir.path }}"
-      when: repo_result.status != 200
-
-    - name: push catalog-spring-boot to git repository in Gogs
-      shell: |
-        git init
-        git remote add origin http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/catalog-spring-boot.git
-        git add . --all
-        git config user.email "rhdeveloper@redhat.com"
-        git config user.name "rh-developer"
-        git commit -m "Initial add"
-        git push origin master
-      args:
-        chdir: "{{ git_dir.path }}/devops-oab-labs-{{ github_ref }}/catalog-spring-boot"
-      when: repo_result.status != 200
-
-    - name: push web-nodejs to git repository in Gogs
-      shell: |
-        git init
-        git remote add origin http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/web-nodejs.git
-        git add . --all
-        git config user.email "rhdeveloper@redhat.com"
-        git config user.name "rh-developer"
-        git commit -m "Initial add"
-        git push origin master
-      args:
-        chdir: "{{ git_dir.path }}/devops-oab-labs-{{ github_ref }}/web-nodejs"
-      when: repo_result.status != 200
-
     - name: create catalog and web imagestreams in {{ cicd_project }}
+      shell: "oc create -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/catalog-is.yaml -n {{ cicd_project }}"
+      ignore_errors: true
+
+    - name: deploy web in {{ dev_project }}
       shell: |
-        oc create -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/catalog-is.yaml -n {{ cicd_project }}
-        oc create -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/web-is.yaml -n {{ cicd_project }}
+        oc new-app -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/web-template.yaml \
+              --param=IMAGE_NAMESPACE={{ cicd_project }} \
+              -n {{ dev_project }}
       ignore_errors: true
 
     - name: deploy catalog in {{ dev_project }}
@@ -125,10 +27,3 @@
               -n {{ dev_project }}
       ignore_errors: true
 
-    - name: deploy web in {{ dev_project }}
-      shell: |
-        oc new-app -f https://raw.githubusercontent.com/{{ github_account }}/devops-oab-labs/{{ github_ref }}/openshift/web-template.yaml \
-              --param=GIT_URI=http://{{ gogs_hostname }}/{{ gogs_user }}/web-nodejs.git \
-              --param=IMAGE_NAMESPACE={{ cicd_project }} \
-              -n {{ dev_project }}
-      ignore_errors: true
