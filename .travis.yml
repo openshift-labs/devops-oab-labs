@@ -1,6 +1,8 @@
 env:
   global:
   - WEB_IMAGE_REPO=siamaksade/rhsummit18-devops-web
+  - APB_IMAGE_REPO=siamaksade/mysql-digital-ocean-apb
+  - APB_DIR=mysql-digital-ocean-apb
 
 cache:
   directories:

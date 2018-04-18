@@ -7,7 +7,7 @@
     command: ssh
     name: "{{ _apb_service_instance_id }}"
     api_token: "{{ api_key }}"
-    ssh_pub_key: "{{ my_pub_key }}"
+    ssh_pub_key: "{{ lookup('file', '/tmp/id_rsa.pub') }}"
   register: do_droplet
 
 - name: create digital ocean droplet for MySQL
