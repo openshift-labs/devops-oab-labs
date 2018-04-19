@@ -23,7 +23,7 @@ pipeline {
                 message: "Enter release version to promote to PROD",
                 parameters: [
                   string(defaultValue: "prod", description: 'Name of the PROD project to create', name: 'PROD Project Name'),
-                  choice(choices: catalogTags.join('\n'), description: '', name: 'Catalog Release Version')
+                  choice(choices: catalogTags.join('\n'), description: '', name: 'Catalog Release Version'),
                   choice(choices: webTags.join('\n'), description: '', name: 'Web Release Version')
                 ]
               )
