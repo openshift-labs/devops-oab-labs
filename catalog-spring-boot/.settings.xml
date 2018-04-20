@@ -15,7 +15,7 @@
         <mirror>
             <id>nexus</id>
             <mirrorOf>*</mirrorOf>
-            <url>${NEXUS_URL}</url>
+            <url>${NEXUS_URL}/repository/maven-all-public</url>
         </mirror>
     </mirrors>
     <profiles>
