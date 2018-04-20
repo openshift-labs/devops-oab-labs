@@ -10,7 +10,7 @@
     playbook_debug: false
   - role: droplet
 
-- name: setup and initialize mysql 
+- name: setup and initialize mysql
   hosts: mysql
   user: root
   tasks:
@@ -23,7 +23,7 @@
   - security
   - mysql
 
-- name: bind credentials and create k8s objects
+- name: create k8s objects
   hosts: localhost
   gather_facts: true
   connection: local
@@ -33,4 +33,3 @@
   - role: ansibleplaybookbundle.asb-modules
     playbook_debug: false
   - role: create_kube_objects
-
