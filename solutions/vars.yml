@@ -1,11 +1,14 @@
 # Lab Solution Variables
 
+guid: 
+
 # OpenShift DEV
-openshift_master: 
+openshift_master: https://masterdev-{{ guid }}.generic.opentlc.com:8443
+openshift_registry: docker-registry-default.devapps-{{ guid }}.generic.opentlc.com
 
 # OpenShift PROD
-prod_master: 
-prod_registry:
+prod_master: https://masterprod-{{ guid }}.generic.opentlc.com:8443
+prod_registry: docker-registry-default.apps-{{ guid }}.generic.opentlc.com
 prod_token:
 
 # Projects
@@ -21,7 +24,7 @@ github_account: openshift-labs
 github_ref: master
 
 # Gogs
-gogs_hostname: 
+gogs_hostname: gogs-lab-infra.devapps-{{ guid }}.generic.opentlc.com
 gogs_admin_user: gogs
 gogs_admin_password: openshift
 gogs_user: developer
