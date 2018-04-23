@@ -25,6 +25,8 @@
 
     - name: push deploy catalog jenkinsfile to cd-infra git repository
       shell: |
+        git config user.email "rhdeveloper@redhat.com"
+        git config user.name "rh-developer"
         git add Jenkinsfile.catalog-prod
         git commit -m "canary prod pipeline added"
         git push origin master

@@ -55,6 +55,8 @@
 
     - name: push jenkinsfile to cd-infra git repository
       shell: |
+        git config user.email "rhdeveloper@redhat.com"
+        git config user.name "rh-developer"
         git add Jenkinsfile.catalog-build
         git commit -m "build pipeline added"
         git push origin master
