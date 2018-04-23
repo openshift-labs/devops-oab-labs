@@ -132,7 +132,7 @@ objects:
       app: coolstore
       component: catalog-mysql
   spec:
-    clusterServiceClassExternalName: localregistry-mysql-digital-ocean-apb
+    clusterServiceClassExternalName: dh-mysql-digital-ocean-apb
     clusterServicePlanExternalName: 512mb
     parameters:
       service_name: catalog-mysql
