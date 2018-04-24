@@ -25,5 +25,5 @@ script:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - ${HOME}/bin/s2i build ./web-nodejs centos/nodejs-8-centos7 $WEB_IMAGE_REPO:$TAG
   - docker push $WEB_IMAGE_REPO:$TAG
-  - docker build -f Dockerfile.centos -t $APB_IMAGE_REPO:$TAG ./$APB_DIR
+  - docker build -f $APB_DIR/Dockerfile.centos -t $APB_IMAGE_REPO:$TAG ./$APB_DIR
   - docker push $APB_IMAGE_REPO:$TAG
