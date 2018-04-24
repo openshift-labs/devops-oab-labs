@@ -59,7 +59,7 @@ pipeline {
             openshift.withProject(env.STAGE_PROJECT) {
               def template = 'https://raw.githubusercontent.com/openshift-labs/devops-oab-labs/master/openshift/coolstore-template.yaml'
               openshift.apply(
-                openshift.process("-f", template, "-p", "IMAGE_VERSION=${releaseTag}", "-p", "IMAGE_NAMESPACE=${imageNamespace}")
+                openshift.process("-f", template, "-p", "CATALOG_IMAGE_VERSION=${releaseTag}", "-p", "IMAGE_NAMESPACE=${imageNamespace}")
               )
             }
           }
