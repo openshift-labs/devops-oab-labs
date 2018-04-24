@@ -27,6 +27,6 @@ github_ref: master
 gogs_hostname: gogs-lab-infra.devapps-{{ guid }}.generic.opentlc.com
 gogs_admin_user: gogs
 gogs_admin_password: openshift
-gogs_user: developer
+gogs_user: student
 gogs_password: openshift
 
