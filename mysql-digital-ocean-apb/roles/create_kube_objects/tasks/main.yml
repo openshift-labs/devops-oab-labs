@@ -40,3 +40,13 @@
 - name: create secret from newly created key pair
   shell: |
     oc create secret generic {{ service_name }}-key --from-file=ssh-privatekey=/tmp/id_rsa --from-file=ssh-publickey=/tmp/id_rsa.pub -n {{ namespace }}
+
+- name: encode bind credentials
+  asb_encode_binding:
+    fields:
+      DB_SERVICE_NAME: "{{service_name}}"
+      DB_SERVICE_PORT: "{{db_port}}"
+      DB_USER: "{{ mysql_user }}"
+      DB_PASSWORD: "{{ mysql_password }}"
+      DB_NAME: "{{ mysql_database }}"
+      DB_ROOT_PASSWORD: "{{ mysql_root_password }}"
