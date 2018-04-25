@@ -1,4 +1,4 @@
-# MySQL on Digital Ocean droplet APB
+# MySQL on DigtalOcean droplet APB
 
 Docs coming soon
 
