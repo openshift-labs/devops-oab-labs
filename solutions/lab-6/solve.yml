@@ -1,0 +1,56 @@
+---
+- name: Solve Lab 6
+  hosts: localhost
+  gather_facts: false
+  run_once: true
+  vars_files:
+  - ../vars.yml
+      
+  tasks:
+    - name: check if apb installed
+      shell: command -v apb >/dev/null 2>&1
+
+    - name: login as admin
+      shell: "oc login -u {{ openshift_admin_user }} -p {{ openshift_admin_password }}"
+
+    - name: create temporary git directory
+      tempfile:
+        state: directory
+        prefix: apb-git
+      register: git_dir
+
+    - name: clone solutions git repository to {{ git_dir.path }}
+      shell: "git clone http://{{ gogs_user }}:{{ gogs_password }}@{{ gogs_hostname }}/{{ gogs_user }}/cd-infra.git"
+      args:
+        chdir: "{{ git_dir.path }}"
+
+    - name: unarchive projects source archive
+      unarchive:
+        remote_src: yes
+        src: "https://github.com/{{ github_account }}/devops-oab-labs/archive/{{ github_ref }}.tar.gz"
+        dest: "{{ git_dir.path }}"
+
+    - name: build apb
+      shell: "apb build"
+      args:
+        chdir: "{{ git_dir.path }}/devops-oab-labs-{{ github_ref }}/mysql-digital-ocean-apb"
+
+    - name: push apb to service broker
+      shell: "apb push --registry-route {{ openshift_registry }}"
+      args:
+        chdir: "{{ git_dir.path }}/devops-oab-labs-{{ github_ref }}/mysql-digital-ocean-apb"
+
+    - name: provision digitalocean mysql from service catalog
+      shell: "oc create -f serviceinstance.yml -n {{ stage_project }}"
+      ignore_errors: true
+
+    - name: replace catalog configmap
+      shell: "oc replace -f configmap.yml -n {{ stage_project }}"
+      ignore_errors: true
+
+    - name: redeploy catalog
+      shell: "oc rollout latest catalog -n {{ stage_project }}"
+      ignore_errors: true
+
+    - name: login as student
+      shell: "oc login -u {{ openshift_user }}"

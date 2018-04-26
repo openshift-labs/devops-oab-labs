@@ -5,6 +5,10 @@ guid:
 # OpenShift DEV
 openshift_master: https://masterdev-{{ guid }}.generic.opentlc.com:8443
 openshift_registry: docker-registry-default.devapps-{{ guid }}.generic.opentlc.com
+openshift_user: student
+openshift_password: openshift
+openshift_admin_user: admin
+openshift_admin_password: openshift
 
 # OpenShift PROD
 prod_master: https://masterprod-{{ guid }}.generic.opentlc.com:8443
