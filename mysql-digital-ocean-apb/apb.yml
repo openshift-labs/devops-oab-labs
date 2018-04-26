@@ -36,7 +36,7 @@ tags:
 - mysql
 metadata:
   displayName: "DigitalOcean MySQL (APB)"
-  longDescription: "MySQL 5.7 running on CentOs 7.4 in DigitalOcean"
+  longDescription: "MySQL 5.7 running on a Virtual Machine on DigitalOcean"
   console.openshift.io/iconClass: icon-mysql-database
   providerDisplayName: "Red Hat, Inc."
 plans:
