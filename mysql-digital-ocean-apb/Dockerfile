@@ -42,8 +42,13 @@ cmdlICg0R0IpCiAgICAgIGxvbmdEZXNjcmlwdGlvbjogVGhpcyBwbGFuIHByb3ZpZGVzIGxhcmdl\
 ICg0R0IpIGRyb3BsZXQgZnJvbSBEaWdpdGFsIE9jZWFuIHdpdGggTXlTUUwKICAgICAgY29zdDog\
 JDQwLjAwIG1vbnRobHkKICAgIHBhcmFtZXRlcnM6ICpfcGFyYW1zCg=="
 
-RUN yum-config-manager --disable rhel-7-server-htb-rpms && yum clean all && rm -Rf /var/cache/yum && yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && yum -y install python git python-pip && yum clean all
-RUN pip install --upgrade pip && pip install 'dopy>=0.3.7,<=0.3.7'
+RUN yum-config-manager --disable rhel-7-server-htb-rpms && \
+        yum clean all && \
+        yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+        yum -y install python git python-pip && \
+        yum clean all
+RUN pip install --upgrade pip && \
+        pip install 'dopy>=0.3.7,<=0.3.7'
 
 RUN chown -R apb:0 /opt/apb && chmod -R g=u /opt/apb /etc/passwd
 
