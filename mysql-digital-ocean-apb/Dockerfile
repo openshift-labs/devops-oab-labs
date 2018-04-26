@@ -42,15 +42,18 @@ cmdlICg0R0IpCiAgICAgIGxvbmdEZXNjcmlwdGlvbjogVGhpcyBwbGFuIHByb3ZpZGVzIGxhcmdl\
 ICg0R0IpIGRyb3BsZXQgZnJvbSBEaWdpdGFsIE9jZWFuIHdpdGggTXlTUUwKICAgICAgY29zdDog\
 JDQwLjAwIG1vbnRobHkKICAgIHBhcmFtZXRlcnM6ICpfcGFyYW1zCg=="
 
-RUN yum-config-manager --disable rhel-7-server-htb-rpms && \
-        yum clean all && \
-        yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-        yum -y install python git python-pip && \
-        yum clean all
-RUN pip install --upgrade pip && \
-        pip install 'dopy>=0.3.7,<=0.3.7'
 
-RUN chown -R apb:0 /opt/apb && chmod -R g=u /opt/apb /etc/passwd
+RUN yum-config-manager --disable rhel-7-server-htb-rpms && \
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum -y update && \
+    yum -y install python git python-pip python-requests python-setuptools python-wheel && \
+    yum clean all
+
+RUN pip install --upgrade pip --user apb --cache-dir /tmp && \
+    pip install --user apb 'dopy>=0.3.7,<=0.3.7' --cache-dir /tmp
+
+RUN chown -R apb:0 /opt/apb && \
+    chmod -R g=u /opt/apb /etc/passwd
 
 COPY playbooks /opt/apb/actions
 COPY roles /opt/apb/actions/roles
