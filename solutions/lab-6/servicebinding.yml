@@ -1,0 +1,9 @@
+---
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: digitalocean-mysql-apb-mysql-binding
+spec:
+  instanceRef:
+    name: digitalocean-mysql-apb-instance
+  secretName: digitalocean-mysql-credentials

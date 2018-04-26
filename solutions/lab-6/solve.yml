@@ -44,12 +44,23 @@
       shell: "oc create -f serviceinstance.yml -n {{ stage_project }}"
       ignore_errors: true
 
+    - name: wait till digitalocean mysql is provisioned
+      shell: "oc get serviceinstance digitalocean-mysql-apb-instance -n {{ stage_project }} -o jsonpath=\"{.status.conditions[?(@.reason == 'ProvisionedSuccessfully')]}\""
+      register: serviceinstance_json
+      until: serviceinstance_json.stdout|trim() != ''
+      retries: "30"
+      delay: "30"
+
+    - name: create service binding and secret
+      shell: "oc create -f servicebinding.yml -n {{ stage_project }}"
+      ignore_errors: true
+
     - name: replace catalog configmap
       shell: "oc replace -f configmap.yml -n {{ stage_project }}"
       ignore_errors: true
 
-    - name: redeploy catalog
-      shell: "oc rollout latest catalog -n {{ stage_project }}"
+    - name: set env vars from secret on catalog deployment
+      shell: "oc env --from=secret/digitalocean-mysql-credentials --prefix=APB_ dc/catalog -n {{ stage_project }}"
       ignore_errors: true
 
     - name: login as student
