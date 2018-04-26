@@ -135,7 +135,7 @@ objects:
     clusterServiceClassExternalName: dh-mysql-digital-ocean-apb
     clusterServicePlanExternalName: 512mb
     parameters:
-      service_name: catalog-mysql
+      service_name: catalogdb${DB_SERVICE_NAME}
       mysql_database: catalog
       mysql_user: ${DB_USERNAME}
       mysql_password: ${DB_PASSWORD}
@@ -283,6 +283,12 @@ parameters:
   description: The namespaces that contains the catalog and web images
   name: IMAGE_NAMESPACE
   value: cicd
+- description: Catalog Service database name
+  displayName: Catalog Database Server Name
+  from: user[a-zA-Z0-9]{4}
+  generate: expression
+  name: DB_SERVICE_NAME
+  required: true
 - description: Catalog Service database user name
   displayName: Catalog Database Username
   from: user[a-zA-Z0-9]{3}
