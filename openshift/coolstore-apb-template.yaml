@@ -127,7 +127,7 @@ objects:
 - apiVersion: servicecatalog.k8s.io/v1beta1
   kind: ServiceInstance
   metadata:
-    name: catalog-mysql-instance
+    name: catalog-digitalocean-mysql-instance
     labels:
       app: coolstore
       component: catalog-mysql
