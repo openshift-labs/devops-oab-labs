@@ -10,7 +10,7 @@ spec:
   clusterServiceClassExternalName: localregistry-mysql-digital-ocean-apb
   clusterServicePlanExternalName: 512mb
   parameters:
-    service_name: externalmysql
+    service_name: catalogdb{{ guid }}
     mysql_database: catalog
     mysql_user: admin
     mysql_password: openshiftrocks

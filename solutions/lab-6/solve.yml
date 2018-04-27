@@ -40,12 +40,17 @@
       args:
         chdir: "{{ git_dir.path }}/devops-oab-labs-{{ github_ref }}/mysql-digital-ocean-apb"
 
+    - name: process service instance 
+      template:
+        src: serviceinstance.yml.j2
+        dest: "{{ git_dir.path }}/serviceinstance.yml"
+
     - name: provision digitalocean mysql from service catalog
-      shell: "oc create -f serviceinstance.yml -n {{ stage_project }}"
+      shell: "oc create -f {{ git_dir.path }}/serviceinstance.yml -n {{ stage_project }}"
       ignore_errors: true
 
     - name: wait till digitalocean mysql is provisioned
-      shell: "oc get serviceinstance digitalocean-mysql-apb-instance -n {{ stage_project }} -o jsonpath=\"{.status.conditions[?(@.reason == 'ProvisionedSuccessfully')]}\""
+      shell: "oc get serviceinstance catalog-digitalocean-mysql-instance -n {{ stage_project }} -o jsonpath=\"{.status.conditions[?(@.reason == 'ProvisionedSuccessfully')]}\""
       register: serviceinstance_json
       until: serviceinstance_json.stdout|trim() != ''
       retries: "30"
