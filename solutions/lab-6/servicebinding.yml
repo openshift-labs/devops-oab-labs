@@ -5,5 +5,5 @@ metadata:
   name: digitalocean-mysql-apb-mysql-binding
 spec:
   instanceRef:
-    name: digitalocean-mysql-apb-instance
+    name: catalog-digitalocean-mysql-instance
   secretName: digitalocean-mysql-credentials
