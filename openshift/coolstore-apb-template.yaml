@@ -143,10 +143,10 @@ objects:
 - apiVersion: servicecatalog.k8s.io/v1beta1
   kind: ServiceBinding
   metadata:
-    name: catalog-mysql-binding
+    name: catalog-digitalocean-mysql-binding
   spec:
     instanceRef:
-      name: catalog-mysql-instance
+      name: catalog-digitalocean-mysql-instance
     secretName: catalog-mysql-credentials
 # Catalog Service
 - apiVersion: v1
