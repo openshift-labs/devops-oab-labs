@@ -18,7 +18,7 @@
     api_token: "{{ api_key }}"
     size_id: "{{_apb_plan_id}}"
     ssh_key_ids: "{{ do_droplet.ssh_key.id }}"
-    region_id: "{{do_region}}"
+    region_id: "{{region}}"
     image_id: "{{do_image}}"
     wait_timeout: 500
   register: do_droplet

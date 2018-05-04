@@ -1,5 +1,5 @@
 ---
-- name: mysql-droplet playbook to provision the application
+- name: provision droplet for mysql
   hosts: localhost
   gather_facts: false
   connection: local
@@ -8,9 +8,9 @@
     install_python_requirements: no
   - role: ansibleplaybookbundle.asb-modules
     playbook_debug: false
-  - role: droplet
+  - role: provision_droplet
 
-- name: setup and initialize mysql
+- name: provision and configure mysql
   hosts: mysql
   user: root
   tasks:
@@ -19,9 +19,7 @@
     install_python_requirements: no
   - role: ansibleplaybookbundle.asb-modules
     playbook_debug: false
-  - firewall
-  - security
-  - mysql
+  - role: provision_mysql
 
 - name: create k8s objects
   hosts: localhost
@@ -32,4 +30,4 @@
     install_python_requirements: no
   - role: ansibleplaybookbundle.asb-modules
     playbook_debug: false
-  - role: create_kube_objects
+  - role: configure_endpoints
