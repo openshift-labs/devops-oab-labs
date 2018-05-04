@@ -285,7 +285,7 @@ parameters:
   value: cicd
 - description: Catalog Service database name
   displayName: Catalog Database Server Name
-  from: user[a-zA-Z0-9]{4}
+  from: user[a-z0-9]{4}
   generate: expression
   name: DB_SERVICE_NAME
   required: true
