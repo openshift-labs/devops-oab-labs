@@ -6,6 +6,14 @@ _params: &_params
     default: domysql
     pattern: "^[a-zA-Z0-9]+[a-zA-Z0-9]*[a-zA-Z0-9]+$"
     required: true
+  - name: region
+    title: Target region
+    description: Region where VM will be provisioned
+    type: enum
+    enum: [nyc1,nyc2,nyc3,sfo1,sfo2,ams2,ams3,sgp1,lon1,fra1,tor1,blr1]
+    default: sfo1
+    reguired: true
+    display_type: select
   - name: mysql_database
     title: Database name
     description: The name of the MySQL database
