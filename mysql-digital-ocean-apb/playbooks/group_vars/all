@@ -1,1 +1,3 @@
-mysql_root_password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits') }}"
+mysql_root_password: "{{ lookup('password', '/tmp/passwordfile_root_pwd chars=ascii_letters,digits') }}"
+mysql_user_password: "{{ mysql_password | default(lookup('password', '/tmp/passwordfile_user_pwd chars=ascii_letters,digits')) }}"
+mysql_username: "{{ mysql_user | default(lookup('password', '/tmp/passwordfile_username chars=ascii_letters')) }}"

@@ -1,3 +1,7 @@
+- name: configure vm firewalls
+  include_tasks: configure_firewall.yml
+- name: configure vm security
+  include_tasks: configure_security.yml
 - name: download rpm file
   get_url:
     url: "https://dev.mysql.com/get/{{ mysql_rpm }}"
@@ -17,11 +21,17 @@
   - MySQL-python
   tags: packages
 
-- name: create my.cnf file from template
-  template:
-    src: templates/my.cnf.j2
+- name: create my.cnf file
+  copy:
     dest: /etc/my.cnf
-    mode: 0644
+    content: |
+      [mysqld]
+      datadir = /var/lib/mysql
+      socket = /var/lib/mysql/mysql.sock
+      symbolic-links = 0
+      log-error = /var/log/mysqld.log
+      pid-file = /var/run/mysqld/mysqld.pid
+      skip-grant-tables = true
 
 - name: ensure the MySQL service is running
   service:
@@ -80,8 +90,8 @@
 
 - name: create database user
   mysql_user:
-    user: "{{mysql_user}}"
-    password: "{{mysql_password}}"
+    user: "{{mysql_username}}"
+    password: "{{mysql_user_password}}"
     priv: '*.*:ALL'
     state: present
     host: '%'
