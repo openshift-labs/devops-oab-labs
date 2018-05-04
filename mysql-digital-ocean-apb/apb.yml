@@ -26,15 +26,15 @@ _params: &_params
     display_type: password
 version: 1.0
 name: mysql-digital-ocean-apb
-description: MySQL database from Digital Ocean
+description: MySQL database from DigitalOcean
 bindable: true
 async: optional
 tags:
 - database
 - mysql
 metadata:
-  displayName: "Digital Ocean MySQL (APB)"
-  longDescription: "MySQL 5.7 running on CentOs 7.4 in Digital Ocean"
+  displayName: "DigitalOcean MySQL (APB)"
+  longDescription: "MySQL 5.7 running on a Virtual Machine on DigitalOcean"
   console.openshift.io/iconClass: icon-mysql-database
   providerDisplayName: "Red Hat, Inc."
 plans:
@@ -43,7 +43,7 @@ plans:
     free: true
     metadata:
       displayName: Default (512MB)
-      longDescription: This plan provides small (512MB) droplet from Digital Ocean with MySQL
+      longDescription: This plan provides small (512MB) droplet from DigitalOcean with MySQL
       cost: $0.00
     parameters: *_params
   - name: 2gb
@@ -51,7 +51,7 @@ plans:
     free: true
     metadata:
       displayName: Medium (2GB)
-      longDescription: This plan provides medium (2GB) droplet from Digital Ocean with MySQL
+      longDescription: This plan provides medium (2GB) droplet from DigitalOcean with MySQL
       cost: $10.00 monthly
     parameters: *_params
   - name: 4gb
@@ -59,6 +59,6 @@ plans:
     free: true
     metadata:
       displayName: Large (4GB)
-      longDescription: This plan provides large (4GB) droplet from Digital Ocean with MySQL
+      longDescription: This plan provides large (4GB) droplet from DigitalOcean with MySQL
       cost: $40.00 monthly
     parameters: *_params

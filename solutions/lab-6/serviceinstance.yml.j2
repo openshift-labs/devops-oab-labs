@@ -1,0 +1,17 @@
+---
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: catalog-digitalocean-mysql-instance
+  labels:
+    app: coolstore
+    component: catalog-mysql
+spec:
+  clusterServiceClassExternalName: localregistry-mysql-digital-ocean-apb
+  clusterServicePlanExternalName: 512mb
+  parameters:
+    service_name: catalogdb{{ guid }}
+    mysql_database: catalog
+    mysql_user: admin
+    mysql_password: openshiftrocks
+    mysql_version: 5.7

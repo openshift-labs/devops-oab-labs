@@ -66,12 +66,23 @@ pipeline {
             openshift.withProject(prodProject) {
               def template = 'https://raw.githubusercontent.com/openshift-labs/devops-oab-labs/master/openshift/coolstore-apb-template.yaml'
               openshift.apply(
-                openshift.process("-f", template, "-p", "CATALOG_IMAGE_VERSION=${catalogReleaseTag}", "-p", "WEB_IMAGE_VERSION=${webReleaseTag}")
+                openshift.process("-f", template, "-p", "CATALOG_IMAGE_VERSION=${catalogReleaseTag}", "-p", "WEB_IMAGE_VERSION=${webReleaseTag}", "-p", "IMAGE_NAMESPACE=", "-p", "DB_SERVICE_NAME=catalogpdb${UUID.randomUUID().toString().replaceAll('-','')}")
               )
+
+              timeout(time: 30, unit: 'MINUTES') {
+                def status = ""
+                while (status != "ProvisionedSuccessfully") {
+                  status = openshift.selector("serviceinstance", "catalog-digitalocean-mysql-instance").object().status.conditions[0].reason
+                  echo "Waiting for MySQL to be ready on Digital Ocean... [status=${status}]"
+                  sleep 10
+                }
+              }
+
+              openshift.selector("dc", "catalog").related("pods").delete()
             }
           }
         }
       }
-    }    
+    }
   }
 }

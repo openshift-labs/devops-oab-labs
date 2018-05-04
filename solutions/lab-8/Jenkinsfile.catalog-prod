@@ -51,7 +51,7 @@ pipeline {
 
               def template = 'https://raw.githubusercontent.com/siamaksade/devops-oab-labs/master/openshift/catalog-deployment-template.yaml'
               openshift.apply(
-                openshift.process("-f", template, "-p", "IMAGE_VERSION=${releaseTag}", "-p", "APP_NAME=${canarySvc}", "-l", "deployment=${canarySvc}")
+                openshift.process("-f", template, "-p", "IMAGE_VERSION=${releaseTag}", "-p", "APP_NAME=${canarySvc}", "-p", "IMAGE_NAMESPACE=", "-l", "deployment=${canarySvc}")
               )
               openshift.set("route-backends", "catalog", "${activeSvc}=90%", "${canarySvc}=10%")
             }

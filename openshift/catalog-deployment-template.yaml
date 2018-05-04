@@ -38,7 +38,7 @@ objects:
           envFrom:
           - secretRef:
               name: catalog-mysql-credentials
-            prefix: SVCAT_
+            prefix: APB_
           ports:
           - containerPort: 8778
             name: jolokia
