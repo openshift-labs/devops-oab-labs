@@ -136,6 +136,7 @@ objects:
     clusterServicePlanExternalName: 512mb
     parameters:
       service_name: catalogdb${DB_SERVICE_NAME}
+      region: sfo2
       mysql_database: catalog
       mysql_user: ${DB_USERNAME}
       mysql_password: ${DB_PASSWORD}
