@@ -1,6 +1,6 @@
-INSERT INTO product (item_id, name, description, price, quantity) VALUES ('329299', 'Red Fedora ', 'Official Red Hat Fedora', 34.99, 312);
+INSERT INTO product (item_id, name, description, price, quantity) VALUES ('329299', 'Red Fedora', 'Official Red Hat Fedora', 34.99, 312);
 INSERT INTO product (item_id, name, description, price, quantity) VALUES ('329199', 'Forge Laptop Sticker', 'JBoss Community Forge Project Sticker', 8.50, 32);
-INSERT INTO product (item_id, name, description, price, quantity) VALUES ('165613', ' Solid Performance Polo', 'Moisture-wicking, antimicrobial 100% polyester design wicks for life of garment. No-curl, rib-knit collar...', 17.80, 12)
+INSERT INTO product (item_id, name, description, price, quantity) VALUES ('165613', 'Solid Performance Polo', 'Moisture-wicking, antimicrobial 100% polyester design wicks for life of garment. No-curl, rib-knit collar...', 17.80, 12)
 INSERT INTO product (item_id, name, description, price, quantity) VALUES ('165614', 'Ogio Caliber Polo', 'Moisture-wicking 100% polyester. Rib-knit collar and cuffs; Ogio jacquard tape insitem_ide neck; bar-tacked three-button placket with...', 28.75, 4)
 INSERT INTO product (item_id, name, description, price, quantity) VALUES ('165954', '16 oz. Vortex Tumbler', 'Double-wall insulated, BPA-free, acrylic cup. Push-on litem_id with thumb-slitem_ide closure; for hot and cold beverages. Holds 16 oz. Hand wash only. Imprint. Clear.', 6.00, 54)
 INSERT INTO product (item_id, name, description, price, quantity) VALUES ('444434', ' Pebble Smart Watch', 'Smart glasses and smart watches are perhaps two of the most exciting developments in recent years. ', 24.00, 420)
